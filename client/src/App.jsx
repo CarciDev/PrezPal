@@ -4,10 +4,6 @@ import "./App.css";
 import Slide from "./components/Slide";
 import OpenAI from "openai";
 
-// console.log(import.meta.env.VITE_OPENAI_API_KEY);
-
-// console.log(import.meta.env);
-
 function App() {
   const [slides, setSlides] = useState([
     {
@@ -210,16 +206,6 @@ function App() {
   const handleImageError = (e) => {
     e.target.src = "path/to/placeholder-image.jpg";
   };
-
-  // const getCurrentSlideJSON = () => {
-  //   return {
-  //     id: slides[currentSlide].id,
-  //     layout: slides[currentSlide].layout,
-  //     title: slides[currentSlide].title,
-  //     text: slides[currentSlide].text,
-  //     imageUrl: slides[currentSlide].imageUrl,
-  //   };
-  // };
 
   return (
     <div className="app">
