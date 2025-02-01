@@ -1,32 +1,41 @@
-from flask import Flask
-from flask_socketio import SocketIO
-import asyncio
+from flask import Flask, jsonify
+import threading
+import time
+import random
+
 from moonshineBufferedQueue import data_queue
-import ASR_dummy  # Import to ensure the thread starts
+from asr import main as asr_main
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode='eventlet')
 
-@app.route('/')
-def index():
-    return "Flask WebSocket Server Running"
+# Global state variable
+current_state = {"value": 0, "last_updated": time.strftime("%Y-%m-%d %H:%M:%S")}
 
-@socketio.on('connect')
-def handle_connect():
-    print("Client Connected!")
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    print("Client Disconnected!")
-
-async def send_data():
-    """Push data to WebSocket clients as soon as it's available."""
+def random_update_to_state():
+    """Function to randomly update the state in a separate thread"""
+    global current_state
     while True:
-        data = await data_queue.get()  # Wait for new data (async)
-        socketio.emit('new_data', {'message': data})
-        print(f"Sent: {data}")
+        # Random update between -10 and 10
+        new_value = current_state["value"] + random.randint(-10, 10)
+        current_state = {
+            "value": new_value,
+            "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        # Sleep for a random interval between 1-5 seconds
+        time.sleep(1)
 
-# Start the async task for handling WebSocket messages
-if __name__ == '__main__':
-    socketio.start_background_task(send_data)  # Runs the WebSocket data push loop
-    socketio.run(app, debug=True)
+
+@app.route("/", methods=["GET"])
+def get_state():
+    """Endpoint to get the current state"""
+    return data_queue.get()
+
+
+if __name__ == "__main__":
+    # Start the background thread before running the Flask app
+    updater_thread = threading.Thread(target=asr_main, daemon=True)
+    updater_thread.start()
+
+    # Run the Flask app
+    app.run(debug=True)

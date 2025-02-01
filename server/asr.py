@@ -69,7 +69,7 @@ def end_recording(speech, transcribe, caption_cache, do_print=True):
         print_captions(text, caption_cache)
     caption_cache.append(text)
     speech *= 0.0
-    asyncio.run_coroutine_threadsafe(data_queue.put(text), asyncio.get_event_loop())
+    data_queue.put(text)
 
 
 def print_captions(text, caption_cache):

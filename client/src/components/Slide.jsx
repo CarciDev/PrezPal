@@ -21,8 +21,6 @@ const Slide = ({
 
   const selectedLayout = layouts[determineLayout()];
 
-  console.log(`Selected layout: ${determineLayout()}`);
-
   if (!selectedLayout) {
     console.warn(
       `Layout "${layout}" not found, falling back to title, text, and image layout`

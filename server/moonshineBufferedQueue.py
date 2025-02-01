@@ -1,3 +1,3 @@
-import asyncio
+import queue
 
-data_queue = asyncio.Queue()
+data_queue = queue.Queue()
