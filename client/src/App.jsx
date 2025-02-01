@@ -1,0 +1,109 @@
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import "./App.css";
+
+function App() {
+  const [slides, setSlides] = useState([
+    {
+      id: 1,
+      title: "",
+      text: "",
+      imageUrl: "",
+    },
+  ]);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const updateSlide = (field, value) => {
+    const updatedSlides = [...slides];
+    updatedSlides[currentSlide] = {
+      ...updatedSlides[currentSlide],
+      [field]: value,
+    };
+    setSlides(updatedSlides);
+  };
+
+  const addSlide = () => {
+    setSlides([
+      ...slides,
+      { id: slides.length + 1, title: "", text: "", imageUrl: "" },
+    ]);
+    setCurrentSlide(slides.length);
+  };
+
+  const handleImageError = (e) => {
+    e.target.src = "path/to/placeholder-image.jpg"; // Replace with your placeholder image path
+  };
+
+  return (
+    <div className="app">
+      {/* Top Menu */}
+      <div className="toolbar">
+        <h2>JSON Derulo</h2>
+        <button onClick={addSlide} className="add-button">
+          <Plus />
+          New Slide
+        </button>
+        <div className="inputs">
+          <input
+            type="text"
+            value={slides[currentSlide].title}
+            onChange={(e) => updateSlide("title", e.target.value)}
+            placeholder="Title"
+          />
+          <input
+            type="text"
+            value={slides[currentSlide].text}
+            onChange={(e) => updateSlide("text", e.target.value)}
+            placeholder="Text content"
+          />
+          <input
+            type="text"
+            value={slides[currentSlide].imageUrl}
+            onChange={(e) => updateSlide("imageUrl", e.target.value)}
+            placeholder="Image URL"
+          />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Left Sidebar */}
+        <div className="sidebar">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              onClick={() => setCurrentSlide(index)}
+              className={`slide-thumbnail ${
+                currentSlide === index ? "active" : ""
+              }`}
+            >
+              <h3>
+                {slide.title ||
+                  (slide.text || slide.imageUrl ? "" : "Untitled Slide")}
+              </h3>
+              <p>{slide.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Slide Preview */}
+        <div className="slide-preview">
+          <div className="slide landscape">
+            <h1>{slides[currentSlide].title}</h1>
+            <p>{slides[currentSlide].text}</p>
+            {slides[currentSlide].imageUrl && (
+              <img
+                src={slides[currentSlide].imageUrl}
+                alt="Slide content"
+                onError={handleImageError}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
