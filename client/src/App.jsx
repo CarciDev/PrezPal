@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
+import { useLocalStorage } from "usehooks-ts";
 
 function App() {
-  const [slides, setSlides] = useState([
+  const [slides, setSlides] = useLocalStorage("slides", [
     {
       id: 1,
       layout: "titleTextImage",
@@ -14,7 +15,7 @@ function App() {
     },
   ]);
 
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useLocalStorage("currentSlide", 0);
 
   const updateSlide = (field, value) => {
     const updatedSlides = [...slides];
@@ -58,12 +59,14 @@ function App() {
             value={slides[currentSlide].title}
             onChange={(e) => updateSlide("title", e.target.value)}
             placeholder="Title"
+            maxLength={50}
           />
           <input
             type="text"
             value={slides[currentSlide].text}
             onChange={(e) => updateSlide("text", e.target.value)}
             placeholder="Text content"
+            maxLength={300}
           />
           <input
             type="text"
