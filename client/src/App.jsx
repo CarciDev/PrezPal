@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import "./App.css";
+import Slide from "./components/Slide";
 
 function App() {
   const [slides, setSlides] = useState([
     {
       id: 1,
+      layout: "titleTextImage",
       title: "",
       text: "",
       imageUrl: "",
@@ -26,18 +28,24 @@ function App() {
   const addSlide = () => {
     setSlides([
       ...slides,
-      { id: slides.length + 1, title: "", text: "", imageUrl: "" },
+      {
+        id: slides.length + 1,
+        layout: "titleTextImage",
+        title: "",
+        text: "",
+        imageUrl: "",
+      },
     ]);
     setCurrentSlide(slides.length);
   };
 
   const handleImageError = (e) => {
-    e.target.src = "path/to/placeholder-image.jpg"; // Replace with your placeholder image path
+    e.target.src = "path/to/placeholder-image.jpg";
   };
 
   return (
     <div className="app">
-      {/* Top Menu */}
+      {/* toolbar menu */}
       <div className="toolbar">
         <h2>JSON Derulo</h2>
         <button onClick={addSlide} className="add-button">
@@ -66,9 +74,9 @@ function App() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* content */}
       <div className="main-content">
-        {/* Left Sidebar */}
+        {/* sidebar */}
         <div className="sidebar">
           {slides.map((slide, index) => (
             <div
@@ -87,18 +95,16 @@ function App() {
           ))}
         </div>
 
-        {/* Slide Preview */}
+        {/* slide preview */}
         <div className="slide-preview">
           <div className="slide landscape">
-            <h1>{slides[currentSlide].title}</h1>
-            <p>{slides[currentSlide].text}</p>
-            {slides[currentSlide].imageUrl && (
-              <img
-                src={slides[currentSlide].imageUrl}
-                alt="Slide content"
-                onError={handleImageError}
-              />
-            )}
+            <Slide
+              layout={slides[currentSlide].layout}
+              title={slides[currentSlide].title}
+              text={slides[currentSlide].text}
+              image={slides[currentSlide].imageUrl}
+              onImageError={handleImageError}
+            />
           </div>
         </div>
       </div>
