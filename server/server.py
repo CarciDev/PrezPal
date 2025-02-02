@@ -11,9 +11,6 @@ from asr import main as asr_main
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Global state variable
-current_state = {"value": 0, "last_updated": time.strftime("%Y-%m-%d %H:%M:%S")}
-
 
 @app.route("/next-sentence", methods=["GET"])
 def get_state():
