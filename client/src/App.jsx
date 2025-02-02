@@ -12,6 +12,8 @@ import PresenterMode from "./PresenterMode";
 function App() {
   const {
     presentation,
+    pushState,
+    popState,
     currentSlide,
     setCurrentSlideIndex,
     updateSlide,
@@ -50,7 +52,9 @@ function App() {
     if (command?.sentence) {
       const wasVoiceCommand = processCommand(command);
       if (!wasVoiceCommand) {
-        // aiRequest(command.sentence);
+        aiRequest(command.sentence, currentSlide, handleToolCall).then(() =>
+          pushState()
+        );
       }
     }
   }, [command]);
@@ -61,6 +65,7 @@ function App() {
     e.preventDefault();
     if (!prompt.trim()) return;
     await aiRequest(prompt, currentSlide, handleToolCall);
+    pushState();
     setPrompt("");
   };
 
@@ -86,6 +91,9 @@ function App() {
           src: photo.src,
           alt: photo.alt,
         });
+        break;
+      case "undo":
+        popState();
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);

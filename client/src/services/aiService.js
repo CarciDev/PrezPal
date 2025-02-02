@@ -67,6 +67,19 @@ const GPT_TOOLS = [
       strict: true,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "undo",
+      description: "Undo the last action on the current slide",
+      parameters: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      strict: true,
+    },
+  },
 ];
 
 const aiRequest = async (instructions, context, handleToolCall) => {
@@ -75,6 +88,20 @@ const aiRequest = async (instructions, context, handleToolCall) => {
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
     });
+
+    if (
+      instructions === undefined ||
+      instructions === null ||
+      instructions.trim() === ""
+    ) {
+      console.error("No instructions provided.");
+      return;
+    }
+
+    if (context === undefined || context === null) {
+      console.error("No context provided.");
+      return;
+    }
 
     // First API call to get function call
     const completion = await client.chat.completions.create({

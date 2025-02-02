@@ -7,6 +7,38 @@ const createUniqueId = () => {
   return Math.random().toString(16).slice(2);
 };
 
+const DEFAULT_PRESENTATION = {
+  name: "My Presentation",
+  slides: [
+    {
+      layout: "titleTextImage",
+      id: 1,
+      elements: [
+        {
+          id: 2,
+          type: "title",
+          content: "Welcome to the Presentation",
+          size: "large",
+          color: "#000000",
+        },
+        {
+          id: 3,
+          type: "text",
+          content: "",
+          size: "medium",
+          color: "#000000",
+        },
+        {
+          id: 4,
+          type: "image",
+          src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+          size: "medium",
+        },
+      ],
+    },
+  ],
+};
+
 export const usePresentation = () => {
   const context = useContext(PresentationContext);
   if (!context) {
@@ -18,38 +50,23 @@ export const usePresentation = () => {
 };
 
 const PresentationProvider = ({ children }) => {
-  const [presentation, setPresentation] = useLocalStorage("presentation", {
-    name: "My Presentation",
-    slides: [
-      {
-        layout: "titleTextImage",
-        id: 1,
-        elements: [
-          {
-            id: 2,
-            type: "title",
-            content: "Welcome to the Presentation",
-            size: "large",
-            color: "#000000",
-          },
-          {
-            id: 3,
-            type: "text",
-            content: "",
-            size: "medium",
-            color: "#000000",
-          },
-          {
-            id: 4,
-            type: "image",
-            src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-            size: "medium",
-          },
-        ],
-      },
-    ],
-  });
+  const [presentation, setPresentation] = useLocalStorage(
+    "presentation",
+    DEFAULT_PRESENTATION
+  );
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [stateStack, setStateStack] = useState([]);
+
+  const pushState = () => {
+    setStateStack((prev) => [...prev, presentation]);
+  };
+
+  const popState = () => {
+    if (stateStack.length > 0) {
+      setPresentation(stateStack[stateStack.length - 1]);
+      setStateStack((prev) => prev.slice(0, -1));
+    }
+  };
 
   const nextSlide = () => {
     if (currentSlideIndex < slides.length - 1) {
@@ -137,6 +154,8 @@ const PresentationProvider = ({ children }) => {
   const value = {
     presentation,
     setPresentation,
+    pushState,
+    popState,
     currentSlideIndex,
     setCurrentSlideIndex,
     currentSlide: presentation.slides[currentSlideIndex],
