@@ -103,7 +103,7 @@ function App() {
   if (isPresenterMode) {
     return (
       <PresenterMode
-        slides={slides}
+        slides={presentation.slides}
         onClose={() => setIsPresenterMode(false)}
       />
     );
@@ -189,7 +189,7 @@ function App() {
               key={slide.id}
               onClick={() => setCurrentSlideIndex(index)}
               className={`slide-thumbnail ${
-                currentSlide === index ? "active" : ""
+                currentSlide.id === slide.id ? "active" : ""
               }`}
             >
               <div className="slide-number-container">
