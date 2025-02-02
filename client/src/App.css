@@ -36,6 +36,8 @@ html {
   border: 1px solid #ddd;
   border-radius: 4px;
   flex: 1;
+  color: black;
+  background-color: white;
 }
 
 .add-button {
