@@ -1,6 +1,11 @@
 import React from "react";
 
-export const Title = ({ content, size = "large", className = "" }) => {
+export const Title = ({
+  content,
+  size = "large",
+  color = "black",
+  className = "",
+}) => {
   const sizeClasses = {
     small: "text-2xl",
     medium: "text-4xl",
@@ -8,13 +13,21 @@ export const Title = ({ content, size = "large", className = "" }) => {
   };
 
   return (
-    <h1 className={`font-bold text-gray-800 ${sizeClasses[size]} ${className}`}>
+    <h1
+      className={`font-bold ${sizeClasses[size]} ${className}`}
+      style={{ color }}
+    >
       {content}
     </h1>
   );
 };
 
-export const Text = ({ content, size = "medium", className = "" }) => {
+export const Text = ({
+  content,
+  size = "medium",
+  color = "black",
+  className = "",
+}) => {
   const sizeClasses = {
     small: "text-sm",
     medium: "text-base",
@@ -22,7 +35,7 @@ export const Text = ({ content, size = "medium", className = "" }) => {
   };
 
   return (
-    <p className={`text-gray-600 ${sizeClasses[size]} ${className}`}>
+    <p className={`${sizeClasses[size]} ${className}`} style={{ color }}>
       {content}
     </p>
   );

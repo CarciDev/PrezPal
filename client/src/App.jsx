@@ -7,11 +7,25 @@ import OpenAI from "openai";
 function App() {
   const [slides, setSlides] = useState([
     {
-      id: 1,
       layout: "titleTextImage",
-      title: "",
-      text: "",
-      imageUrl: "",
+      id: 1,
+      elements: [
+        {
+          type: "title",
+          content: "Welcome to the Presentation",
+          size: "large",
+        },
+        {
+          type: "text",
+          content: "",
+          size: "medium",
+        },
+        {
+          type: "image",
+          src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+          size: "medium",
+        },
+      ],
     },
   ]);
 
@@ -21,39 +35,54 @@ function App() {
   const [showPromptInput, setShowPromptInput] = useState(false);
   const [activeFunction, setActiveFunction] = useState(null);
 
-  const updateSlide = (field, value) => {
+  const updateSlide = (field, value, additionalProps = {}) => {
     const updatedSlides = [...slides];
-    updatedSlides[currentSlide] = {
-      ...updatedSlides[currentSlide],
-      [field]: value,
-    };
+    const elementIndex = updatedSlides[currentSlide].elements.findIndex(
+      (el) => el.type === field
+    );
+    if (elementIndex !== -1) {
+      if (field === "image") {
+        updatedSlides[currentSlide].elements[elementIndex].src = value;
+      } else {
+        updatedSlides[currentSlide].elements[elementIndex].content = value;
+      }
+      updatedSlides[currentSlide].elements[elementIndex] = {
+        ...updatedSlides[currentSlide].elements[elementIndex],
+        ...additionalProps,
+      };
+    } else {
+      updatedSlides[currentSlide].elements.push({
+        type: field,
+        content: field === "image" ? "" : value,
+        src: field === "image" ? value : "",
+        ...additionalProps,
+      });
+    }
     setSlides(updatedSlides);
   };
 
   const addSlide = () => {
+    console.log(slides);
     setSlides([
       ...slides,
       {
         id: slides.length + 1,
-        layout: "titleTextImage",
-        title: "",
-        text: "",
-        imageUrl: "",
+        elements: [],
       },
     ]);
     setCurrentSlide(slides.length);
   };
 
-  const setTitle = (title) => {
-    updateSlide("title", title);
+  const setTitle = (title, color, size) => {
+    updateSlide("title", title, { color, size });
   };
 
-  const setText = (text) => {
-    updateSlide("text", text);
+  const setText = (text, color, size) => {
+    updateSlide("text", text, { color, size });
   };
 
-  const setImage = (imageUrl) => {
-    updateSlide("imageUrl", imageUrl);
+  const setImage = (imageUrl, size) => {
+    updateSlide("image", imageUrl, { size });
   };
 
   const handlePromptSubmit = async (e) => {
@@ -84,7 +113,7 @@ function App() {
         updateSlide("text", functionArgs.text);
         break;
       case "updateImage":
-        updateSlide("imageUrl", functionArgs.imageUrl);
+        updateSlide("image", functionArgs.imageUrl);
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
@@ -192,7 +221,7 @@ function App() {
             updateSlide("text", functionArgs.text);
             break;
           case "image":
-            updateSlide("imageUrl", functionArgs.imageUrl);
+            updateSlide("image", functionArgs.imageUrl);
             break;
         }
         setPrompt("");
@@ -219,7 +248,10 @@ function App() {
           <div className="input-group">
             <input
               type="text"
-              value={slides[currentSlide].title}
+              value={
+                slides[currentSlide].elements.find((el) => el.type === "title")
+                  ?.content || ""
+              }
               onChange={(e) => updateSlide("title", e.target.value)}
               placeholder="Title"
             />
@@ -254,7 +286,10 @@ function App() {
           <div className="input-group">
             <input
               type="text"
-              value={slides[currentSlide].text}
+              value={
+                slides[currentSlide].elements.find((el) => el.type === "text")
+                  ?.content || ""
+              }
               onChange={(e) => updateSlide("text", e.target.value)}
               placeholder="Text content"
             />
@@ -289,8 +324,11 @@ function App() {
           <div className="input-group">
             <input
               type="text"
-              value={slides[currentSlide].imageUrl}
-              onChange={(e) => updateSlide("imageUrl", e.target.value)}
+              value={
+                slides[currentSlide].elements.find((el) => el.type === "image")
+                  ?.src || ""
+              }
+              onChange={(e) => updateSlide("image", e.target.value)}
               placeholder="Image URL"
             />
             {activeFunction === "image" && (
@@ -336,10 +374,10 @@ function App() {
               }`}
             >
               <h3>
-                {slide.title ||
-                  (slide.text || slide.imageUrl ? "" : "Untitled Slide")}
+                {slide.elements.find((el) => el.type === "title")?.content ||
+                  (slide.elements.length === 0 ? "Untitled Slide" : "")}
               </h3>
-              <p>{slide.text}</p>
+              <p>{slide.elements.find((el) => el.type === "text")?.content}</p>
             </div>
           ))}
         </div>
@@ -348,11 +386,9 @@ function App() {
         <div className="slide-preview">
           <div className="slide landscape">
             <Slide
-              layout={slides[currentSlide].layout}
-              title={slides[currentSlide].title}
-              text={slides[currentSlide].text}
-              image={slides[currentSlide].imageUrl}
+              elements={slides[currentSlide].elements}
               onImageError={handleImageError}
+              layout={slides[currentSlide].layout}
             />
           </div>
         </div>

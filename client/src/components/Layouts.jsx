@@ -1,4 +1,5 @@
 import React from "react";
+import { Title, Text, Image } from "./Elements";
 
 const Container = ({ children, className = "" }) => (
   <div className={`w-full px-4 ${className}`}>
@@ -10,41 +11,23 @@ const Column = ({ children, className = "" }) => (
   <div className={`flex flex-col ${className}`}>{children}</div>
 );
 
-const Title = ({ content, size = "large", className = "" }) => {
-  const sizeClasses = {
-    small: "text-2xl",
-    medium: "text-4xl",
-    large: "text-6xl",
-  };
-
-  return (
-    <h1 className={`font-bold ${sizeClasses[size]} ${className}`}>{content}</h1>
-  );
-};
-
-const Text = ({ content, className = "" }) => (
-  <p className={`text-xl ${className}`}>{content}</p>
-);
-
-const Image = ({ src, alt = "", className = "", onError }) => (
-  <img
-    src={src}
-    alt={alt}
-    onError={onError}
-    className={`rounded-lg ${className}`}
-  />
-);
-
 export const layouts = {
   titleOnly: {
     id: "titleOnly",
     name: "Title Only",
-    component: ({ title }) => (
+    component: ({ elements }) => (
       <Container className="title-only-container">
         <Column className="items-center justify-center">
-          {title && (
-            <Title content={title} size="large" className="text-center" />
-          )}
+          {elements
+            .filter((el) => el.type === "title")
+            .map((el, index) => (
+              <Title
+                key={index}
+                content={el.content}
+                size={el.size}
+                className="text-center"
+              />
+            ))}
         </Column>
       </Container>
     ),
@@ -53,10 +36,18 @@ export const layouts = {
   textOnly: {
     id: "textOnly",
     name: "Text Only",
-    component: ({ text }) => (
+    component: ({ elements }) => (
       <Container className="text-only-container">
         <Column className="items-center justify-center min-h-screen">
-          {text && <Text content={text} className="text-center max-w-2xl" />}
+          {elements
+            .filter((el) => el.type === "text")
+            .map((el, index) => (
+              <Text
+                key={index}
+                content={el.content}
+                className="text-center max-w-2xl"
+              />
+            ))}
         </Column>
       </Container>
     ),
@@ -65,11 +56,18 @@ export const layouts = {
   imageOnly: {
     id: "imageOnly",
     name: "Image Only",
-    component: ({ image, onImageError }) => (
+    component: ({ elements, onImageError }) => (
       <Container className="image-only-container">
-        {image && (
-          <Image src={image} onError={onImageError} className="w-full h-auto" />
-        )}
+        {elements
+          .filter((el) => el.type === "image")
+          .map((el, index) => (
+            <Image
+              key={index}
+              src={el.src}
+              onError={onImageError}
+              className="w-full h-auto"
+            />
+          ))}
       </Container>
     ),
   },
@@ -77,15 +75,30 @@ export const layouts = {
   titleText: {
     id: "titleText",
     name: "Title Text",
-    component: ({ title, text }) => (
+    component: ({ elements }) => (
       <Container className="title-text-container">
         <div className="title-container">
-          {title && (
-            <Title content={title} size="large" className="text-center" />
-          )}
+          {elements
+            .filter((el) => el.type === "title")
+            .map((el, index) => (
+              <Title
+                key={index}
+                content={el.content}
+                size={el.size}
+                className="text-center"
+              />
+            ))}
         </div>
         <div className="text-container">
-          {text && <Text content={text} className="text-center max-w-3xl" />}
+          {elements
+            .filter((el) => el.type === "text")
+            .map((el, index) => (
+              <Text
+                key={index}
+                content={el.content}
+                className="text-center max-w-3xl"
+              />
+            ))}
         </div>
       </Container>
     ),
@@ -94,21 +107,31 @@ export const layouts = {
   titleImage: {
     id: "titleImage",
     name: "Title Image",
-    component: ({ title, image, onImageError }) => (
+    component: ({ elements, onImageError }) => (
       <Container className="title-image-container">
         <div className="title-section">
-          {title && (
-            <Title content={title} size="large" className="text-center" />
-          )}
+          {elements
+            .filter((el) => el.type === "title")
+            .map((el, index) => (
+              <Title
+                key={index}
+                content={el.content}
+                size={el.size}
+                className="text-center"
+              />
+            ))}
         </div>
         <div className="image-section">
-          {image && (
-            <Image
-              src={image}
-              onError={onImageError}
-              className="w-full h-auto max-h-96 object-contain"
-            />
-          )}
+          {elements
+            .filter((el) => el.type === "image")
+            .map((el, index) => (
+              <Image
+                key={index}
+                src={el.src}
+                onError={onImageError}
+                className="w-full h-auto max-h-96 object-contain"
+              />
+            ))}
         </div>
       </Container>
     ),
@@ -117,20 +140,31 @@ export const layouts = {
   textImage: {
     id: "textImage",
     name: "Text Image",
-    component: ({ text, image, onImageError }) => (
+    component: ({ elements, onImageError }) => (
       <Container className="text-image-container">
         <div className="content-section">
           <div className="text-section">
-            {text && <Text content={text} className="text-center max-w-3xl" />}
+            {elements
+              .filter((el) => el.type === "text")
+              .map((el, index) => (
+                <Text
+                  key={index}
+                  content={el.content}
+                  className="text-center max-w-3xl"
+                />
+              ))}
           </div>
           <div className="image-section">
-            {image && (
-              <Image
-                src={image}
-                onError={onImageError}
-                className="w-full h-auto max-h-96 object-contain"
-              />
-            )}
+            {elements
+              .filter((el) => el.type === "image")
+              .map((el, index) => (
+                <Image
+                  key={index}
+                  src={el.src}
+                  onError={onImageError}
+                  className="w-full h-auto max-h-96 object-contain"
+                />
+              ))}
           </div>
         </div>
       </Container>
@@ -140,25 +174,43 @@ export const layouts = {
   titleTextImage: {
     id: "titleTextImage",
     name: "Title, Text, and Image",
-    component: ({ title, text, image, onImageError }) => (
+    component: ({ elements, onImageError }) => (
       <Container className="title-text-image-container">
         <div className="title-section">
-          {title && (
-            <Title content={title} size="large" className="text-center" />
-          )}
+          {elements
+            .filter((el) => el.type === "title")
+            .map((el, index) => (
+              <Title
+                key={index}
+                content={el.content}
+                size={el.size}
+                className="text-center"
+              />
+            ))}
         </div>
         <div className="content-section">
           <div className="text-section">
-            {text && <Text content={text} className="text-center max-w-3xl" />}
+            {elements
+              .filter((el) => el.type === "text")
+              .map((el, index) => (
+                <Text
+                  key={index}
+                  content={el.content}
+                  className="text-center max-w-3xl"
+                />
+              ))}
           </div>
           <div className="image-section">
-            {image && (
-              <Image
-                src={image}
-                onError={onImageError}
-                className="w-full h-auto max-h-96 object-contain"
-              />
-            )}
+            {elements
+              .filter((el) => el.type === "image")
+              .map((el, index) => (
+                <Image
+                  key={index}
+                  src={el.src}
+                  onError={onImageError}
+                  className="w-full h-auto max-h-96 object-contain"
+                />
+              ))}
           </div>
         </div>
       </Container>
