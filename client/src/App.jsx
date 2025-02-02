@@ -10,7 +10,9 @@ function App() {
   const { command, isPolling, stopPolling } = useCommand();
 
   useEffect(() => {
-    stopPolling(); // temporary - to change
+    if (!isPolling) {
+      stopPolling();
+    }
   }, [isPolling]);
 
   useEffect(() => {
@@ -222,7 +224,7 @@ function App() {
   };
 
   const handleImageError = (e) => {
-    e.target.src = "path/to/placeholder-image.jpg";
+    // Todo
   };
 
   return (
