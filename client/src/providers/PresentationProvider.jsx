@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 const PresentationContext = createContext();
@@ -85,8 +85,16 @@ const PresentationProvider = ({ children }) => {
       ...prev,
       slides: [...prev.slides, { ...newSlide, id: createUniqueId() }],
     }));
-    setCurrentSlideIndex(presentation.slides.length);
+    setCurrentSlideIndex((prev) => presentation.slides.length);
   };
+
+  useEffect(() => {
+    if (currentSlideIndex >= presentation.slides.length) {
+      setCurrentSlideIndex(presentation.slides.length - 1);
+    } else if (currentSlideIndex < 0) {
+      setCurrentSlideIndex(0);
+    }
+  }, [presentation.slides.length]);
 
   const addEmptySlide = () => {
     addSlide({
@@ -134,9 +142,6 @@ const PresentationProvider = ({ children }) => {
       ...prev,
       slides: prev.slides.filter((slide) => slide.id !== slideId),
     }));
-    setCurrentSlideIndex(
-      Math.min(currentSlideIndex, presentation.slides.length - 2)
-    );
   };
 
   // Element management functions
