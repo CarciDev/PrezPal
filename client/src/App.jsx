@@ -2,12 +2,24 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
-import { useLocalStorage } from "usehooks-ts";
 import useCommand from "./hooks/command";
 import { queryPhotos } from "./services/unsplashService";
 import { aiRequest } from "./services/aiService";
+import { usePresentation } from "./providers/PresentationProvider";
 
 function App() {
+  const {
+    presentation,
+    currentSlide,
+    setCurrentSlideIndex,
+    updateSlide,
+    updateElement,
+    deleteSlide,
+    nextSlide,
+    previousSlide,
+    addSlide,
+  } = usePresentation();
+
   const { command, isPolling, startPolling } = useCommand();
 
   useEffect(() => {
@@ -23,112 +35,37 @@ function App() {
     }
   }, [command]);
 
-  const [slides, setSlides] = useLocalStorage("slides", [
-    {
-      layout: "titleTextImage",
-      id: 1,
-      elements: [
-        {
-          type: "title",
-          content: "Welcome to the Presentation",
-          size: "large",
-          color: "#000000",
-        },
-        {
-          type: "text",
-          content: "",
-          size: "medium",
-          color: "#000000",
-        },
-        {
-          type: "image",
-          src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-          size: "medium",
-        },
-      ],
-    },
-  ]);
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   const [prompt, setPrompt] = useState("");
-
-  const updateSlide = async (field, value, additionalProps = {}) => {
-    const updatedSlides = [...slides];
-    const elementIndex = updatedSlides[currentSlide].elements.findIndex(
-      (el) => el.type === field
-    );
-    if (elementIndex !== -1) {
-      if (field === "image") {
-        const photos = await queryPhotos(value);
-        if (photos.length === 0) {
-          return;
-        }
-        updatedSlides[currentSlide].elements[elementIndex].src = photos[0].src;
-      } else {
-        updatedSlides[currentSlide].elements[elementIndex].content = value;
-      }
-      updatedSlides[currentSlide].elements[elementIndex] = {
-        ...updatedSlides[currentSlide].elements[elementIndex],
-        ...additionalProps,
-      };
-    } else {
-      updatedSlides[currentSlide].elements.push({
-        type: field,
-        content: field === "image" ? "" : value,
-        src: field === "image" ? value : "",
-        ...additionalProps,
-      });
-    }
-    setSlides(updatedSlides);
-  };
-
-  const addSlide = () => {
-    console.log(slides);
-    setSlides([
-      ...slides,
-      {
-        id: slides.length + 1,
-        elements: [],
-      },
-    ]);
-    setCurrentSlide(slides.length);
-  };
-
-  const setTitle = (title, color, size) => {
-    updateSlide("title", title, { color, size });
-  };
-
-  const setText = (text, color, size) => {
-    updateSlide("text", text, { color, size });
-  };
-
-  const setImage = (imageUrl, size) => {
-    updateSlide("image", imageUrl, { size });
-  };
 
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await aiRequest(prompt, slides[currentSlide], handleToolCall);
+    await aiRequest(prompt, currentSlide, handleToolCall);
     setPrompt("");
   };
 
-  const handleToolCall = (toolCall) => {
+  const handleToolCall = async (toolCall) => {
     const functionArguments = JSON.parse(toolCall.function.arguments);
     switch (toolCall.function.name) {
       case "updateTitle":
-        updateSlide("title", functionArguments.title, {
+        updateElement(currentSlide.id, 0, {
+          content: functionArguments.title,
           color: functionArguments.color,
         });
         break;
       case "updateText":
-        updateSlide("text", functionArguments.text, {
+        updateElement(currentSlide.id, 1, {
+          content: functionArguments.text,
           color: functionArguments.color,
         });
         break;
       case "updateImage":
-        updateSlide("image", functionArguments.photoQuery);
+        const photoQuery = await queryPhotos(functionArguments.photoQuery);
+        const photo = photoQuery[0];
+        updateElement(currentSlide.id, 2, {
+          src: photo.src,
+          alt: photo.alt,
+        });
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
@@ -143,7 +80,36 @@ function App() {
     <div className="app">
       {/* toolbar menu */}
       <div className="toolbar">
-        <button onClick={addSlide} className="add-button">
+        <button
+          onClick={() =>
+            addSlide({
+              layout: "titleTextImage",
+              elements: [
+                {
+                  id: 2,
+                  type: "title",
+                  content: "New Slide",
+                  size: "large",
+                  color: "#000000",
+                },
+                {
+                  id: 3,
+                  type: "text",
+                  content: "",
+                  size: "medium",
+                  color: "#000000",
+                },
+                {
+                  id: 4,
+                  type: "image",
+                  src: "",
+                  size: "medium",
+                },
+              ],
+            })
+          }
+          className="add-button"
+        >
           <Plus />
           New Slide
         </button>
@@ -152,10 +118,12 @@ function App() {
             <input
               type="text"
               value={
-                slides[currentSlide].elements.find((el) => el.type === "title")
+                currentSlide.elements.find((el) => el.type === "title")
                   ?.content || ""
               }
-              onChange={(e) => updateSlide("title", e.target.value)}
+              onChange={(e) =>
+                updateElement(currentSlide.id, 0, { content: e.target.value })
+              }
               placeholder="Title"
               maxLength={50}
             />
@@ -165,10 +133,12 @@ function App() {
             <input
               type="text"
               value={
-                slides[currentSlide].elements.find((el) => el.type === "text")
+                currentSlide.elements.find((el) => el.type === "text")
                   ?.content || ""
               }
-              onChange={(e) => updateSlide("text", e.target.value)}
+              onChange={(e) =>
+                updateElement(currentSlide.id, 1, { content: e.target.value })
+              }
               placeholder="Text content"
               maxLength={300}
             />
@@ -178,10 +148,12 @@ function App() {
             <input
               type="text"
               value={
-                slides[currentSlide].elements.find((el) => el.type === "image")
-                  ?.src || ""
+                currentSlide.elements.find((el) => el.type === "image")?.src ||
+                ""
               }
-              onChange={(e) => updateSlide("image", e.target.value)}
+              onChange={(e) =>
+                updateElement(currentSlide.id, 2, { src: e.target.value })
+              }
               placeholder="Image URL"
             />
           </div>
@@ -201,10 +173,10 @@ function App() {
       <div className="main-content">
         {/* sidebar */}
         <div className="sidebar">
-          {slides.map((slide, index) => (
+          {presentation.slides.map((slide, index) => (
             <div
               key={slide.id}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => setCurrentSlideIndex(index)}
               className={`slide-thumbnail ${
                 currentSlide === index ? "active" : ""
               }`}
@@ -222,9 +194,9 @@ function App() {
         <div className="slide-preview">
           <div className="slide landscape">
             <Slide
-              elements={slides[currentSlide].elements}
+              elements={currentSlide.elements}
               onImageError={handleImageError}
-              layout={slides[currentSlide].layout}
+              layout={currentSlide.layout}
             />
           </div>
         </div>
