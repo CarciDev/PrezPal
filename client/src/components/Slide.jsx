@@ -6,6 +6,10 @@ const Slide = ({ elements, onImageError }) => {
     const hasTitle = elements.some((el) => el.type === "title" && el.content);
     const hasText = elements.some((el) => el.type === "text" && el.content);
     const hasImage = elements.some((el) => el.type === "image" && el.src);
+    const hasTitleColor = elements.some(
+      (el) => el.type === "title" && el.color
+    );
+    const hasTextColor = elements.some((el) => el.type === "text" && el.color);
 
     if (hasTitle && !hasText && !hasImage) return "titleOnly";
     if (!hasTitle && hasText && !hasImage) return "textOnly";

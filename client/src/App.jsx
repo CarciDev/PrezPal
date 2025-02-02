@@ -28,11 +28,13 @@ function App() {
           type: "title",
           content: "Welcome to the Presentation",
           size: "large",
+          color: "#000000",
         },
         {
           type: "text",
           content: "",
           size: "medium",
+          color: "#000000",
         },
         {
           type: "image",
@@ -121,10 +123,10 @@ function App() {
 
     switch (toolCall.function.name) {
       case "updateTitle":
-        updateSlide("title", functionArgs.title);
+        updateSlide("title", functionArgs.title, { color: functionArgs.color });
         break;
       case "updateText":
-        updateSlide("text", functionArgs.text);
+        updateSlide("text", functionArgs.text, { color: functionArgs.color });
         break;
       case "updateImage":
         updateSlide("image", functionArgs.imageUrl);
@@ -153,8 +155,12 @@ function App() {
                 type: "string",
                 description: "The title of the slide",
               },
+              color: {
+                type: "string",
+                description: "The color of the title in hex format",
+              },
             },
-            required: ["title"],
+            required: ["title", "color"],
             additionalProperties: false,
           },
           strict: true,
@@ -172,8 +178,12 @@ function App() {
                 type: "string",
                 description: "The main text content of the slide",
               },
+              color: {
+                type: "string",
+                description: "The color of the text in hex format",
+              },
             },
-            required: ["text"],
+            required: ["text", "color"],
             additionalProperties: false,
           },
           strict: true,
@@ -229,10 +239,14 @@ function App() {
 
         switch (functionType) {
           case "title":
-            updateSlide("title", functionArgs.title);
+            updateSlide("title", functionArgs.title, {
+              color: functionArgs.color,
+            });
             break;
           case "text":
-            updateSlide("text", functionArgs.text);
+            updateSlide("text", functionArgs.text, {
+              color: functionArgs.color,
+            });
             break;
           case "image":
             updateSlide("image", functionArgs.imageUrl);

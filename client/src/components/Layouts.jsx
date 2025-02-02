@@ -25,6 +25,7 @@ export const layouts = {
                 key={index}
                 content={el.content}
                 size={el.size}
+                color={el.color}
                 className="text-center"
               />
             ))}
@@ -45,6 +46,7 @@ export const layouts = {
               <Text
                 key={index}
                 content={el.content}
+                color={el.color}
                 className="text-center max-w-2xl"
               />
             ))}
@@ -85,6 +87,7 @@ export const layouts = {
                 key={index}
                 content={el.content}
                 size={el.size}
+                color={el.color}
                 className="text-center"
               />
             ))}
@@ -96,6 +99,7 @@ export const layouts = {
               <Text
                 key={index}
                 content={el.content}
+                color={el.color}
                 className="text-center max-w-3xl"
               />
             ))}
@@ -117,6 +121,7 @@ export const layouts = {
                 key={index}
                 content={el.content}
                 size={el.size}
+                color={el.color}
                 className="text-center"
               />
             ))}
@@ -150,6 +155,7 @@ export const layouts = {
                 <Text
                   key={index}
                   content={el.content}
+                  color={el.color}
                   className="text-center max-w-3xl"
                 />
               ))}
@@ -184,6 +190,7 @@ export const layouts = {
                 key={index}
                 content={el.content}
                 size={el.size}
+                color={el.color}
                 className="text-center"
               />
             ))}
@@ -196,6 +203,7 @@ export const layouts = {
                 <Text
                   key={index}
                   content={el.content}
+                  color={el.color}
                   className="text-center max-w-3xl"
                 />
               ))}
