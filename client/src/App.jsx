@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Presentation } from "lucide-react";
+import { Plus, Presentation, Edit3 } from "lucide-react"; // Change icon to Edit3
 import "./App.css";
 import Slide from "./components/Slide";
 import useCommand from "./hooks/command";
@@ -28,6 +28,7 @@ function App() {
   const { command, isPolling, startPolling } = useCommand();
 
   const [prompt, setPrompt] = useState("");
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
 
   const deleteCurrentSlide = () => {
     deleteSlide(currentSlide.id);
@@ -108,6 +109,14 @@ function App() {
     return title.length > 50 ? "small" : "";
   };
 
+  const handlePromptToggle = () => {
+    setIsPromptVisible(!isPromptVisible);
+  };
+
+  const handlePromptClose = () => {
+    setIsPromptVisible(false);
+  };
+
   if (isPresenterMode) {
     return (
       <PresenterMode
@@ -177,15 +186,9 @@ function App() {
           <Presentation />
           Present
         </button>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <input value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-          <button onClick={handlePromptSubmit}>Submit</button>
-        </div>
+        <button onClick={handlePromptToggle} className="prompt-toggle-button">
+          <Edit3 />
+        </button>
       </div>
 
       {/* content */}
@@ -229,6 +232,24 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* prompt container */}
+      {isPromptVisible && (
+        <div className="prompt-container">
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="prompt-input"
+            placeholder="Enter your prompt"
+          />
+          <button onClick={handlePromptSubmit} className="prompt-submit-button">
+            Submit
+          </button>
+          <button onClick={handlePromptClose} className="prompt-close-button">
+            x
+          </button>
+        </div>
+      )}
     </div>
   );
 }
