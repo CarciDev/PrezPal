@@ -29,6 +29,14 @@ function App() {
   const { command, isPolling, startPolling } = useCommand();
 
   const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const commandChatGPT = async (instructions) => {
+    setLoading(true);
+    await aiRequest(instructions, currentSlide, handleToolCall);
+    pushState();
+    setLoading(false);
+  };
   const [isPromptVisible, setIsPromptVisible] = useState(false);
   const [isPromptDropdownVisible, setIsPromptDropdownVisible] = useState(false);
 
@@ -55,9 +63,7 @@ function App() {
     if (command?.sentence) {
       const wasVoiceCommand = processCommand(command);
       if (!wasVoiceCommand) {
-        aiRequest(command.sentence, currentSlide, handleToolCall).then(() =>
-          pushState()
-        );
+        commandChatGPT(command.sentence);
       }
     }
   }, [command]);
@@ -67,8 +73,7 @@ function App() {
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await aiRequest(prompt, currentSlide, handleToolCall);
-    pushState();
+    await commandChatGPT(prompt);
     setPrompt("");
   };
 
@@ -283,7 +288,11 @@ function App() {
 
         {/* slide preview */}
         <div className="slide-preview">
-          <div className="slide landscape">
+          <div
+            className={`slide landscape ${
+              loading ? "shadow animate-[shadow-pulse_1.5s_infinite]" : ""
+            }`}
+          >
             <Slide
               elements={currentSlide.elements}
               onImageError={handleImageError}
