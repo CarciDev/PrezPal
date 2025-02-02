@@ -123,6 +123,7 @@ html {
 }
 
 .slide-thumbnail {
+  position: relative;
   padding: 1rem;
   background: white;
   border: 1px solid #ddd;
@@ -132,6 +133,26 @@ html {
   transition: box-shadow 0.3s;
   display: flex;
   align-items: center;
+}
+
+.slide-thumbnail:hover .delete-slide-button {
+  display: block;
+}
+
+.delete-slide-button {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #999;
+}
+
+.delete-slide-button:hover {
+  color: #666;
 }
 
 .slide-thumbnail:hover {

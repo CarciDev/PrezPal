@@ -117,6 +117,10 @@ function App() {
     setIsPromptVisible(false);
   };
 
+  const handleDeleteSlide = (slideId) => {
+    deleteSlide(slideId);
+  };
+
   if (isPresenterMode) {
     return (
       <PresenterMode
@@ -216,6 +220,15 @@ function App() {
                       ?.content || "Untitled Slide"}
                   </h3>
                 </div>
+                <button
+                  className="delete-slide-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteSlide(slide.id);
+                  }}
+                >
+                  x
+                </button>
               </div>
             </div>
           ))}
