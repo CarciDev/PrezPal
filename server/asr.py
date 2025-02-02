@@ -12,7 +12,7 @@ from silero_vad import VADIterator, load_silero_vad
 from sounddevice import InputStream
 
 from moonshine_onnx import MoonshineOnnxModel, load_tokenizer
-from pipeline_queues import moonshine_queue
+from pipeline_queues import moonshine_queue, analyzer_queue
 
 SAMPLING_RATE = 16000
 
@@ -70,7 +70,7 @@ def end_recording(speech, transcribe, caption_cache, do_print=True):
     caption_cache.append(text)
     speech *= 0.0
     moonshine_queue.put({"text": text, "duration": (len(speech) / SAMPLING_RATE)})
-
+    analyzer_queue.put({"text": text, "duration": (len(speech) / SAMPLING_RATE)})
 
 def print_captions(text, caption_cache):
     """Prints right justified on same line, prepending cached captions."""

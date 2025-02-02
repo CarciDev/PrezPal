@@ -6,7 +6,8 @@ import random
 
 from pipeline_queues import moonshine_queue, analyzer_queue
 from asr import main as asr_main
-
+from analyzerUtil import main as analyzer_main
+from analyzerUtil import get_summary
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -23,11 +24,21 @@ def get_state():
         }
     )
 
+@app.route("/summary", methods=["GET"])
+def summary():
+    """Endpoint to get analyzed summary data"""
+    frequency, filler_count, times, paces = get_summary()
+    return jsonify({
+        "word_frequency": frequency,
+        "filler_count": filler_count,
+        "times": times,
+        "paces": paces
+    })
+
 
 if __name__ == "__main__":
-    # Start the background thread before running the Flask app
-    updater_thread = threading.Thread(target=asr_main, daemon=True)
-    updater_thread.start()
+    threading.Thread(target=asr_main, daemon=True).start()
+    threading.Thread(target=analyzer_main, daemon=True).start()
 
     # Run the Flask app
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
