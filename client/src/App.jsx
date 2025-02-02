@@ -9,6 +9,7 @@ import { usePresentation } from "./providers/PresentationProvider";
 import { useSlideCommands } from "./hooks/useSlideCommands";
 import PresenterMode from "./PresenterMode";
 import DropdownEditor from "./DropdownEditor";
+import { soundsLikeAnInstruction } from "./services/soundsLikeAnInstruction";
 
 function App() {
   const {
@@ -60,9 +61,10 @@ function App() {
 
   useEffect(() => {
     console.log(command);
-    if (command?.sentence) {
+    const instruction = command?.sentence;
+    if (instruction) {
       const wasVoiceCommand = processCommand(command);
-      if (!wasVoiceCommand) {
+      if (!wasVoiceCommand && soundsLikeAnInstruction(instruction)) {
         commandChatGPT(command.sentence);
       }
     }
