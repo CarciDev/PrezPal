@@ -51,7 +51,8 @@ const GPT_TOOLS = [
     type: "function",
     function: {
       name: "updateImage",
-      description: "Set a new image on the current slide",
+      description:
+        "Set a new image / picture on the current slide using a short description (query) of the desired photo",
       parameters: {
         type: "object",
         properties: {
@@ -109,7 +110,7 @@ const aiRequest = async (instructions, context, handleToolCall) => {
       messages: [
         {
           role: "system",
-          content: `You are a helpful presentation assistant. Generate appropriate slide content based on the current slide. Here is the request to service: ${instructions}`,
+          content: `You are a helpful presentation assistant. You have the ability to perform actions on a slideshow presentation on behalf of the user, but you must only do so if the request clearly indicates some desired change - the request to service is: "${instructions}."`,
         },
         {
           role: "user",
@@ -121,7 +122,7 @@ const aiRequest = async (instructions, context, handleToolCall) => {
 
     const toolCalls = completion.choices[0].message.tool_calls;
     if (!toolCalls || toolCalls.length === 0) {
-      Console.log("The LLM did not make any tool calls.");
+      console.log("The LLM did not make any tool calls.");
       return;
     }
 
