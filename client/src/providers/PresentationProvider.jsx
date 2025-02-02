@@ -1,0 +1,160 @@
+import React, { createContext, useContext, useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
+
+const PresentationContext = createContext();
+
+const createUniqueId = () => {
+  return Math.random().toString(16).slice(2);
+};
+
+export const usePresentation = () => {
+  const context = useContext(PresentationContext);
+  if (!context) {
+    throw new Error(
+      "usePresentation must be used within a PresentationProvider"
+    );
+  }
+  return context;
+};
+
+const PresentationProvider = ({ children }) => {
+  const [presentation, setPresentation] = useLocalStorage("presentation", {
+    name: "My Presentation",
+    slides: [
+      {
+        layout: "titleTextImage",
+        id: 1,
+        elements: [
+          {
+            id: 2,
+            type: "title",
+            content: "Welcome to the Presentation",
+            size: "large",
+            color: "#000000",
+          },
+          {
+            id: 3,
+            type: "text",
+            content: "",
+            size: "medium",
+            color: "#000000",
+          },
+          {
+            id: 4,
+            type: "image",
+            src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+            size: "medium",
+          },
+        ],
+      },
+    ],
+  });
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  const nextSlide = () => {
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex((prev) => prev + 1);
+    }
+  };
+
+  const previousSlide = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex((prev) => prev - 1);
+    }
+  };
+
+  const addSlide = (newSlide) => {
+    setPresentation((prev) => ({
+      ...prev,
+      slides: [...prev.slides, { ...newSlide, id: createUniqueId() }],
+    }));
+  };
+
+  const addEmptySlide = () => {
+    addSlide({
+      elements: [
+        {
+          id: 2,
+          type: "title",
+          content: "",
+          size: "large",
+          color: "#000000",
+        },
+        {
+          id: 3,
+          type: "text",
+          content: "",
+          size: "medium",
+          color: "#000000",
+        },
+        {
+          id: 4,
+          type: "image",
+          src: "",
+          size: "medium",
+        },
+      ],
+    });
+    setCurrentSlideIndex(presentation.slides.length - 1);
+  };
+
+  const updateSlide = (slideId, updatedSlide) => {
+    setPresentation((prev) => {
+      return {
+        ...prev,
+        slides: prev.slides.map((slide) =>
+          slide.id === slideId ? { ...slide, ...updatedSlide } : slide
+        ),
+      };
+    });
+  };
+
+  const deleteSlide = (slideId) => {
+    setPresentation((prev) => ({
+      ...prev,
+      slides: prev.slides.filter((slide) => slide.id !== slideId),
+    }));
+  };
+
+  // Element management functions
+  const updateElement = (slideId, elementIndex, updatedElement) => {
+    setPresentation((prev) => ({
+      ...prev,
+      slides: prev.slides.map((slide) => {
+        if (slide.id === slideId) {
+          const newElements = [...slide.elements];
+          newElements[elementIndex] = {
+            ...newElements[elementIndex],
+            ...updatedElement,
+          };
+          return { ...slide, elements: newElements };
+        }
+        return slide;
+      }),
+    }));
+  };
+
+  const value = {
+    presentation,
+    setPresentation,
+    currentSlideIndex,
+    setCurrentSlideIndex,
+    currentSlide: presentation.slides[currentSlideIndex],
+    nextSlide,
+    previousSlide,
+    addSlide,
+    addEmptySlide,
+    updateSlide,
+    deleteSlide,
+    updateElement,
+    totalSlides: presentation.slides.length,
+  };
+
+  return (
+    <PresentationContext.Provider value={value}>
+      {children}
+    </PresentationContext.Provider>
+  );
+};
+
+export default PresentationProvider;
