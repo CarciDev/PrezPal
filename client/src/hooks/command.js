@@ -60,6 +60,7 @@ const useCommand = () => {
     command,
     error,
     isPolling,
+    setCommand,
     startPolling: () => setIsPolling(true),
     stopPolling: () => setIsPolling(false),
   };

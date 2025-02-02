@@ -5,18 +5,22 @@ import Slide from "./components/Slide";
 import { useLocalStorage } from "usehooks-ts";
 import OpenAI from "openai";
 import useCommand from "./hooks/command";
+import { queryPhotos } from "./services/unsplashService";
 
 function App() {
-  const { command, isPolling, stopPolling } = useCommand();
+  const { command, isPolling, startPolling } = useCommand();
 
   useEffect(() => {
     if (!isPolling) {
-      stopPolling();
+      startPolling();
     }
   }, [isPolling]);
 
   useEffect(() => {
     console.log(command);
+    if (command && command.message.trim() !== "") {
+      //   aiRequest(command.sentence); // commented-out as there are no safeguards in place to prevent excessive calls
+    }
   }, [command]);
 
   const [slides, setSlides] = useLocalStorage("slides", [
@@ -49,14 +53,18 @@ function App() {
 
   const [prompt, setPrompt] = useState("");
 
-  const updateSlide = (field, value, additionalProps = {}) => {
+  const updateSlide = async (field, value, additionalProps = {}) => {
     const updatedSlides = [...slides];
     const elementIndex = updatedSlides[currentSlide].elements.findIndex(
       (el) => el.type === field
     );
     if (elementIndex !== -1) {
       if (field === "image") {
-        updatedSlides[currentSlide].elements[elementIndex].src = value;
+        const photos = await queryPhotos(value);
+        if (photos.length === 0) {
+          return;
+        }
+        updatedSlides[currentSlide].elements[elementIndex].src = photos[0].src;
       } else {
         updatedSlides[currentSlide].elements[elementIndex].content = value;
       }
@@ -102,7 +110,8 @@ function App() {
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await handleSpecificAICall();
+    await aiRequest(prompt);
+    setPrompt("");
   };
 
   const handleToolCall = (toolCall) => {
@@ -119,19 +128,14 @@ function App() {
         });
         break;
       case "updateImage":
-        updateSlide("image", functionArguments.imageUrl);
+        updateSlide("image", functionArguments.photoQuery);
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
     }
   };
 
-  const handleSpecificAICall = async () => {
-    if (!prompt.trim()) {
-      alert("Please enter a prompt first!");
-      return;
-    }
-
+  const aiRequest = async (instructions) => {
     const tools = [
       {
         type: "function",
@@ -183,16 +187,17 @@ function App() {
         type: "function",
         function: {
           name: "updateImage",
-          description: "Update the content of the current slide's image",
+          description: "Set a new image on the current slide",
           parameters: {
             type: "object",
             properties: {
-              imageUrl: {
+              photoQuery: {
                 type: "string",
-                description: "URL for an image to display on the slide",
+                description:
+                  "A query to search for the image to display on the slide, from a database of images",
               },
             },
-            required: ["imageUrl"],
+            required: ["photoQuery"],
             additionalProperties: false,
           },
           strict: true,
@@ -211,7 +216,7 @@ function App() {
         messages: [
           {
             role: "system",
-            content: `You are a helpful presentation assistant. Generate appropriate slide content based on the current slide. Here is the request to service: ${prompt}`,
+            content: `You are a helpful presentation assistant. Generate appropriate slide content based on the current slide. Here is the request to service: ${instructions}`,
           },
           {
             role: "user",
@@ -223,14 +228,13 @@ function App() {
 
       const toolCalls = completion.choices[0].message.tool_calls;
       if (!toolCalls || toolCalls.length === 0) {
+        Console.log("The LLM did not make any tool calls.");
         return;
       }
 
       for (const toolCall of toolCalls) {
         handleToolCall(toolCall);
       }
-
-      setPrompt("");
     } catch (error) {
       console.error("Error calling OpenAI:", error);
       alert("Error generating content. Please check the console for details.");
