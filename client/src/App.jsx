@@ -200,42 +200,44 @@ function App() {
             <Plus />
             New Slide
           </button>
-          <div className="relative">
-            <button
-              onClick={handleDropdownToggle}
-              className="edit-button flex items-center gap-2 px-3 py-2 bg-gray-200 rounded-md border border-gray-300 hover:bg-gray-300"
-            >
-              <Edit3 />
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${
-                  isDropdownVisible ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {isDropdownVisible && (
-              <div className="absolute left-0 top-full mt-1 w-80 bg-white rounded-md shadow-lg border border-gray-200 p-4 space-y-4 z-10">
-                <DropdownEditor
-                  currentSlide={currentSlide}
-                  updateElement={updateElement}
+          {currentSlide && (
+            <div className="relative">
+              <button
+                onClick={handleDropdownToggle}
+                className="edit-button flex items-center gap-2 px-3 py-2 bg-gray-200 rounded-md border border-gray-300 hover:bg-gray-300"
+              >
+                <Edit3 />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    isDropdownVisible ? "rotate-180" : ""
+                  }`}
                 />
-                <hr className="my-4 border-gray-300" />
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
-                  placeholder="Enter your prompt"
-                />
-                <div className="flex justify-end">
-                  <button
-                    onClick={handlePromptSubmit}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                  >
-                    Submit
-                  </button>
+              </button>
+              {isDropdownVisible && (
+                <div className="absolute left-0 top-full mt-1 w-80 bg-white rounded-md shadow-lg border border-gray-200 p-4 space-y-4 z-10">
+                  <DropdownEditor
+                    currentSlide={currentSlide}
+                    updateElement={updateElement}
+                  />
+                  <hr className="my-4 border-gray-300" />
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
+                    placeholder="Enter your prompt"
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handlePromptSubmit}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                      Submit
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="toolbar-right">
           <button
@@ -252,54 +254,57 @@ function App() {
       <div className="main-content">
         {/* sidebar */}
         <div className="sidebar">
-          {presentation.slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              onClick={() => setCurrentSlideIndex(index)}
-              className={`slide-thumbnail ${
-                currentSlide.id === slide.id ? "active" : ""
-              }`}
-            >
-              <div className="slide-number-container">
-                <span className="slide-number">{index + 1}</span>
-                <div className="slide-content">
-                  <h3
-                    className={`slide-title ${getTitleClassName(
-                      slide.elements.find((el) => el.type === "title")
-                        ?.content || ""
-                    )}`}
+          {currentSlide &&
+            presentation.slides.map((slide, index) => (
+              <div
+                key={slide.id}
+                onClick={() => setCurrentSlideIndex(index)}
+                className={`slide-thumbnail ${
+                  currentSlide.id === slide.id ? "active" : ""
+                }`}
+              >
+                <div className="slide-number-container">
+                  <span className="slide-number">{index + 1}</span>
+                  <div className="slide-content">
+                    <h3
+                      className={`slide-title ${getTitleClassName(
+                        slide.elements.find((el) => el.type === "title")
+                          ?.content || ""
+                      )}`}
+                    >
+                      {slide.elements.find((el) => el.type === "title")
+                        ?.content || "Untitled Slide"}
+                    </h3>
+                  </div>
+                  <button
+                    className="delete-slide-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSlide(slide.id);
+                    }}
                   >
-                    {slide.elements.find((el) => el.type === "title")
-                      ?.content || "Untitled Slide"}
-                  </h3>
+                    x
+                  </button>
                 </div>
-                <button
-                  className="delete-slide-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteSlide(slide.id);
-                  }}
-                >
-                  x
-                </button>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* slide preview */}
         <div className="slide-preview">
-          <div
-            className={`slide landscape ${
-              loading ? "shadow animate-[shadow-pulse_1.5s_infinite]" : ""
-            }`}
-          >
-            <Slide
-              elements={currentSlide.elements}
-              onImageError={handleImageError}
-              layout={currentSlide.layout}
-            />
-          </div>
+          {currentSlide && (
+            <div
+              className={`slide landscape ${
+                loading ? "shadow animate-[shadow-pulse_1.5s_infinite]" : ""
+              }`}
+            >
+              <Slide
+                elements={currentSlide.elements}
+                onImageError={handleImageError}
+                layout={currentSlide.layout}
+              />
+            </div>
+          )}
         </div>
       </div>
 

@@ -85,6 +85,9 @@ const PresentationProvider = ({ children }) => {
       ...prev,
       slides: [...prev.slides, { ...newSlide, id: createUniqueId() }],
     }));
+    if (currentSlideIndex < 0) {
+      setCurrentSlideIndex(presentation.slides.length - 1);
+    }
   };
 
   const addEmptySlide = () => {
@@ -112,7 +115,6 @@ const PresentationProvider = ({ children }) => {
         },
       ],
     });
-    setCurrentSlideIndex(presentation.slides.length - 1);
   };
 
   const updateSlide = (slideId, updatedSlide) => {
@@ -131,6 +133,9 @@ const PresentationProvider = ({ children }) => {
       ...prev,
       slides: prev.slides.filter((slide) => slide.id !== slideId),
     }));
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex((prev) => prev - 1);
+    }
   };
 
   // Element management functions
