@@ -106,6 +106,9 @@ function App() {
       case "undo":
         popState();
         break;
+      case "deleteSlide":
+        deleteSlide(currentSlide.id);
+        break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
     }

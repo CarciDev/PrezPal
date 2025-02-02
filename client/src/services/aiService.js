@@ -81,6 +81,19 @@ const GPT_TOOLS = [
       strict: true,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "deleteSlide",
+      description: "Delete the current slide",
+      parameters: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      strict: true,
+    },
+  },
 ];
 
 const aiRequest = async (instructions, context, handleToolCall) => {
