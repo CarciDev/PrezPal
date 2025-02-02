@@ -94,6 +94,19 @@ const GPT_TOOLS = [
       strict: true,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "createBlankSlide",
+      description: "Creates a blank slide at the end of the presentation",
+      parameters: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      strict: true,
+    },
+  },
 ];
 
 const aiRequest = async (instructions, context, handleToolCall) => {

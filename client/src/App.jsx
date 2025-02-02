@@ -35,7 +35,14 @@ function App() {
 
   const commandChatGPT = async (instructions) => {
     setLoading(true);
-    await aiRequest(instructions, currentSlide, handleToolCall);
+    await aiRequest(
+      instructions,
+      {
+        totalSlides: presentation.slides.length,
+        currentSlide: currentSlide ?? "<None is selected>",
+      },
+      handleToolCall
+    );
     pushState();
     setLoading(false);
   };
@@ -108,6 +115,9 @@ function App() {
         break;
       case "deleteSlide":
         deleteSlide(currentSlide.id);
+        break;
+      case "createBlankSlide":
+        addEmptySlide();
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
