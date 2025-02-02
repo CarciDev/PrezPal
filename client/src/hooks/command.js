@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 const useCommand = () => {
-  const [command, setCommand] = useState(null);
+  const [command, setCommand] = useState({ message: "" });
   const [error, setError] = useState(null);
   const [isPolling, setIsPolling] = useState(true);
   const abortControllerRef = useRef(null);

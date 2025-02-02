@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     console.log(command);
-    if (command && command.message.trim() !== "") {
+    if (command) {
       //   aiRequest(command.sentence); // commented-out as there are no safeguards in place to prevent excessive calls
     }
   }, [command]);
