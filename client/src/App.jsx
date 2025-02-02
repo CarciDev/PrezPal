@@ -3,9 +3,9 @@ import { Plus } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
 import { useLocalStorage } from "usehooks-ts";
-import OpenAI from "openai";
 import useCommand from "./hooks/command";
 import { queryPhotos } from "./services/unsplashService";
+import { aiRequest } from "./services/aiService";
 
 function App() {
   const { command, isPolling, startPolling } = useCommand();
@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     console.log(command);
     if (command) {
-      //   aiRequest(command.sentence); // commented-out as there are no safeguards in place to prevent excessive calls
+      //   aiRequest(command.sentence, slides[currentSlide]); // commented-out as there are no safeguards in place to prevent excessive calls
     }
   }, [command]);
 
@@ -110,7 +110,7 @@ function App() {
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await aiRequest(prompt);
+    await aiRequest(prompt, slides[currentSlide]);
     setPrompt("");
   };
 
@@ -132,112 +132,6 @@ function App() {
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
-    }
-  };
-
-  const aiRequest = async (instructions) => {
-    const tools = [
-      {
-        type: "function",
-        function: {
-          name: "updateTitle",
-          description: "Update the content of the current slide's title",
-          parameters: {
-            type: "object",
-            properties: {
-              title: {
-                type: "string",
-                description: "The title of the slide",
-              },
-              color: {
-                type: "string",
-                description: "The color of the title in hex format",
-              },
-            },
-            required: ["title", "color"],
-            additionalProperties: false,
-          },
-          strict: true,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "updateText",
-          description: "Update the content of the current slide's text",
-          parameters: {
-            type: "object",
-            properties: {
-              text: {
-                type: "string",
-                description: "The main text content of the slide",
-              },
-              color: {
-                type: "string",
-                description: "The color of the text in hex format",
-              },
-            },
-            required: ["text", "color"],
-            additionalProperties: false,
-          },
-          strict: true,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "updateImage",
-          description: "Set a new image on the current slide",
-          parameters: {
-            type: "object",
-            properties: {
-              photoQuery: {
-                type: "string",
-                description:
-                  "A query to search for the image to display on the slide, from a database of images",
-              },
-            },
-            required: ["photoQuery"],
-            additionalProperties: false,
-          },
-          strict: true,
-        },
-      },
-    ];
-    try {
-      const client = new OpenAI({
-        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true,
-      });
-
-      // First API call to get function call
-      const completion = await client.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful presentation assistant. Generate appropriate slide content based on the current slide. Here is the request to service: ${instructions}`,
-          },
-          {
-            role: "user",
-            content: JSON.stringify(slides[currentSlide]),
-          },
-        ],
-        tools: tools,
-      });
-
-      const toolCalls = completion.choices[0].message.tool_calls;
-      if (!toolCalls || toolCalls.length === 0) {
-        Console.log("The LLM did not make any tool calls.");
-        return;
-      }
-
-      for (const toolCall of toolCalls) {
-        handleToolCall(toolCall);
-      }
-    } catch (error) {
-      console.error("Error calling OpenAI:", error);
-      alert("Error generating content. Please check the console for details.");
     }
   };
 
