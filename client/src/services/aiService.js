@@ -107,6 +107,50 @@ const GPT_TOOLS = [
       strict: true,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "createSlide",
+      description:
+        "Create a new slide with the content provided through parameters",
+      parameters: {
+        type: "object",
+        properties: {
+          titleContent: {
+            type: "string",
+            description: "The title of the slide",
+          },
+          textContent: {
+            type: "string",
+            description: "The main text content of the slide",
+          },
+          titleColor: {
+            type: "string",
+            description: "The color of the title in hex format",
+          },
+          textColor: {
+            type: "string",
+            description:
+              "The color of the main text content of the slide in hex format",
+          },
+          photoQuery: {
+            type: "string",
+            description:
+              "A query to search for the image to display on the slide, from a database of images",
+          },
+        },
+        required: [
+          "titleContent",
+          "textContent",
+          "titleColor",
+          "textColor",
+          "photoQuery",
+        ],
+        additionalProperties: false,
+      },
+      strict: true,
+    },
+  },
 ];
 
 const aiRequest = async (instructions, context, handleToolCall) => {

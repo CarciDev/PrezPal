@@ -119,6 +119,35 @@ function App() {
       case "createBlankSlide":
         addEmptySlide();
         break;
+      case "createSlide":
+        const photoQuery2 = await queryPhotos(functionArguments.photoQuery);
+        const photo2 = photoQuery2[0];
+        addSlide({
+          elements: [
+            {
+              id: 1,
+              type: "title",
+              content: functionArguments.titleContent,
+              size: "large",
+              color: functionArguments.titleColor,
+            },
+            {
+              id: 2,
+              type: "text",
+              content: functionArguments.textContent,
+              size: "medium",
+              color: functionArguments.textColor,
+            },
+            {
+              id: 3,
+              type: "image",
+              src: photo2.src,
+              alt: photo2.alt,
+              size: "medium",
+            },
+          ],
+        });
+        break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
     }
