@@ -3,24 +3,47 @@ import Slide from "./components/Slide";
 
 const PresenterMode = ({ slides, onClose }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
 
-  const handleClose = async () => {
+  const isInFullscreen = () => {
+    return !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+  };
+
+  const exitFullscreen = async () => {
     try {
-      if (document.fullscreenElement) {
+      if (!isInFullscreen()) return;
+
+      if (document.exitFullscreen) {
         await document.exitFullscreen();
-      } else if (document.webkitFullscreenElement) {
+      } else if (document.webkitExitFullscreen) {
         await document.webkitExitFullscreen();
-      } else if (document.mozFullScreenElement) {
+      } else if (document.mozCancelFullScreen) {
         await document.mozCancelFullScreen();
-      } else if (document.msFullscreenElement) {
+      } else if (document.msExitFullscreen) {
         await document.msExitFullscreen();
       }
-
-      setTimeout(() => {
-        onClose();
-      }, 50);
     } catch (err) {
       console.error("Error exiting fullscreen:", err);
+    }
+  };
+
+  const handleClose = async () => {
+    if (isExiting) return;
+    setIsExiting(true);
+
+    try {
+      await exitFullscreen();
+      // Wait a short moment to ensure fullscreen has exited
+      setTimeout(() => {
+        onClose();
+      }, 100);
+    } catch (err) {
+      console.error("Error during close:", err);
       onClose();
     }
   };
@@ -47,33 +70,33 @@ const PresenterMode = ({ slides, onClose }) => {
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [slides.length, onClose]);
+  }, [slides.length]);
 
   useEffect(() => {
-    const enterFullscreen = () => {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
+    const enterFullscreen = async () => {
+      try {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          await elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          await elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          await elem.msRequestFullscreen();
+        }
+      } catch (err) {
+        console.error("Error entering fullscreen:", err);
       }
     };
 
-    setTimeout(enterFullscreen, 100);
+    // Small delay to ensure component is mounted
+    const timer = setTimeout(enterFullscreen, 100);
 
     return () => {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
+      clearTimeout(timer);
+      if (!isExiting) {
+        exitFullscreen().catch(console.error);
       }
     };
   }, []);
