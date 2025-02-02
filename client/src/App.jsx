@@ -143,51 +143,53 @@ function App() {
           <Plus />
           New Slide
         </button>
-        <div className="inputs">
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "title")
-                  ?.content || ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 0, { content: e.target.value })
-              }
-              placeholder="Title"
-              maxLength={50}
-            />
-          </div>
+        {currentSlide && (
+          <div className="inputs">
+            <div className="input-group">
+              <input
+                type="text"
+                value={
+                  currentSlide.elements.find((el) => el.type === "title")
+                    ?.content || ""
+                }
+                onChange={(e) =>
+                  updateElement(currentSlide.id, 0, { content: e.target.value })
+                }
+                placeholder="Title"
+                maxLength={50}
+              />
+            </div>
 
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "text")
-                  ?.content || ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 1, { content: e.target.value })
-              }
-              placeholder="Text content"
-              maxLength={300}
-            />
-          </div>
+            <div className="input-group">
+              <input
+                type="text"
+                value={
+                  currentSlide.elements.find((el) => el.type === "text")
+                    ?.content || ""
+                }
+                onChange={(e) =>
+                  updateElement(currentSlide.id, 1, { content: e.target.value })
+                }
+                placeholder="Text content"
+                maxLength={300}
+              />
+            </div>
 
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "image")?.src ||
-                ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 2, { src: e.target.value })
-              }
-              placeholder="Image URL"
-            />
+            <div className="input-group">
+              <input
+                type="text"
+                value={
+                  currentSlide.elements.find((el) => el.type === "image")
+                    ?.src || ""
+                }
+                onChange={(e) =>
+                  updateElement(currentSlide.id, 2, { src: e.target.value })
+                }
+                placeholder="Image URL"
+              />
+            </div>
           </div>
-        </div>
+        )}
         <button
           onClick={() => setIsPresenterMode(true)}
           className="present-button"
@@ -204,54 +206,57 @@ function App() {
       <div className="main-content">
         {/* sidebar */}
         <div className="sidebar">
-          {presentation.slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              onClick={() => setCurrentSlideIndex(index)}
-              className={`slide-thumbnail ${
-                currentSlide.id === slide.id ? "active" : ""
-              }`}
-            >
-              <div className="slide-number-container">
-                <span className="slide-number">{index + 1}</span>
-                <div className="slide-content">
-                  <h3
-                    className={`slide-title ${getTitleClassName(
-                      slide.elements.find((el) => el.type === "title")
-                        ?.content || ""
-                    )}`}
+          {currentSlide &&
+            presentation.slides.map((slide, index) => (
+              <div
+                key={slide.id}
+                onClick={() => setCurrentSlideIndex(index)}
+                className={`slide-thumbnail ${
+                  currentSlide.id === slide.id ? "active" : ""
+                }`}
+              >
+                <div className="slide-number-container">
+                  <span className="slide-number">{index + 1}</span>
+                  <div className="slide-content">
+                    <h3
+                      className={`slide-title ${getTitleClassName(
+                        slide.elements.find((el) => el.type === "title")
+                          ?.content || ""
+                      )}`}
+                    >
+                      {slide.elements.find((el) => el.type === "title")
+                        ?.content || "Untitled Slide"}
+                    </h3>
+                  </div>
+                  <button
+                    className="delete-slide-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSlide(slide.id);
+                    }}
                   >
-                    {slide.elements.find((el) => el.type === "title")
-                      ?.content || "Untitled Slide"}
-                  </h3>
+                    x
+                  </button>
                 </div>
-                <button
-                  className="delete-slide-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteSlide(slide.id);
-                  }}
-                >
-                  x
-                </button>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* slide preview */}
         <div className="slide-preview">
-          <div
-            className={`slide landscape ${
-              loading ? "shadow animate-[shadow-pulse_1.5s_infinite]" : ""
-            }`}
-          >
-            <Slide
-              elements={currentSlide.elements}
-              onImageError={handleImageError}
-              layout={currentSlide.layout}
-            />
-          </div>
+          {currentSlide && (
+            <div
+              className={`slide landscape ${
+                loading ? "shadow animate-[shadow-pulse_1.5s_infinite]" : ""
+              }`}
+            >
+              <Slide
+                elements={currentSlide.elements}
+                onImageError={handleImageError}
+                layout={currentSlide.layout}
+              />
+            </div>
+          )}
         </div>
       </div>
 

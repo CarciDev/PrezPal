@@ -126,7 +126,7 @@ const aiRequest = async (instructions, context, handleToolCall) => {
     }
 
     for (const toolCall of toolCalls) {
-      handleToolCall(toolCall);
+      await handleToolCall(toolCall);
     }
   } catch (error) {
     console.error("Error calling OpenAI:", error);

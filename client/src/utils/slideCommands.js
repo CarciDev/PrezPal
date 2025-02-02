@@ -23,7 +23,7 @@ const wordToNumber = {
 
 export const SLIDE_COMMANDS = {
   NEW_SLIDE: {
-    trigger: "create slide",
+    trigger: "new slide",
     handler: (slideActions) => {
       slideActions.addEmptySlide();
       return {
