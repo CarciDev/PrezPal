@@ -7,13 +7,13 @@ import OpenAI from "openai";
 import useCommand from "./hooks/command";
 
 function App() {
-  const { command, isPolling, startPolling } = useCommand();
+  const { command, isPolling, stopPolling } = useCommand();
 
   useEffect(() => {
     if (!isPolling) {
-      startPolling();
+      stopPolling();
     }
-  }, [isPolling, startPolling]);
+  }, [isPolling]);
 
   useEffect(() => {
     console.log(command);
@@ -48,8 +48,6 @@ function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const [prompt, setPrompt] = useState("");
-  const [showPromptInput, setShowPromptInput] = useState(false);
-  const [activeFunction, setActiveFunction] = useState(null);
 
   const updateSlide = (field, value, additionalProps = {}) => {
     const updatedSlides = [...slides];
@@ -104,39 +102,31 @@ function App() {
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-
-    await handleSpecificAICall(activeFunction);
-    setShowPromptInput(false);
-    setActiveFunction(null);
-  };
-
-  const openPromptInput = (functionType) => {
-    setActiveFunction(functionType);
-    setShowPromptInput(true);
-    setPrompt("");
+    await handleSpecificAICall();
   };
 
   const handleToolCall = (toolCall) => {
-    if (!toolCall) return;
-
-    const functionArgs = JSON.parse(toolCall.function.arguments);
-
+    const functionArguments = JSON.parse(toolCall.function.arguments);
     switch (toolCall.function.name) {
       case "updateTitle":
-        updateSlide("title", functionArgs.title, { color: functionArgs.color });
+        updateSlide("title", functionArguments.title, {
+          color: functionArguments.color,
+        });
         break;
       case "updateText":
-        updateSlide("text", functionArgs.text, { color: functionArgs.color });
+        updateSlide("text", functionArguments.text, {
+          color: functionArguments.color,
+        });
         break;
       case "updateImage":
-        updateSlide("image", functionArgs.imageUrl);
+        updateSlide("image", functionArguments.imageUrl);
         break;
       default:
         console.warn("Unknown function call:", toolCall.function.name);
     }
   };
 
-  const handleSpecificAICall = async (functionType) => {
+  const handleSpecificAICall = async () => {
     if (!prompt.trim()) {
       alert("Please enter a prompt first!");
       return;
@@ -231,29 +221,16 @@ function App() {
         tools: tools,
       });
 
-      const toolCall = completion.choices[0].message.tool_calls?.[0];
-      if (toolCall) {
-        const functionArgs = JSON.parse(toolCall.function.arguments);
-        console.log(toolCall);
-        console.log(functionArgs);
-
-        switch (functionType) {
-          case "title":
-            updateSlide("title", functionArgs.title, {
-              color: functionArgs.color,
-            });
-            break;
-          case "text":
-            updateSlide("text", functionArgs.text, {
-              color: functionArgs.color,
-            });
-            break;
-          case "image":
-            updateSlide("image", functionArgs.imageUrl);
-            break;
-        }
-        setPrompt("");
+      const toolCalls = completion.choices[0].message.tool_calls;
+      if (!toolCalls || toolCalls.length === 0) {
+        return;
       }
+
+      for (const toolCall of toolCalls) {
+        handleToolCall(toolCall);
+      }
+
+      setPrompt("");
     } catch (error) {
       console.error("Error calling OpenAI:", error);
       alert("Error generating content. Please check the console for details.");
@@ -261,7 +238,7 @@ function App() {
   };
 
   const handleImageError = (e) => {
-    e.target.src = "path/to/placeholder-image.jpg";
+    // Todo
   };
 
   return (
@@ -284,32 +261,6 @@ function App() {
               placeholder="Title"
               maxLength={50}
             />
-            {activeFunction === "title" && (
-              <div className="prompt-input-container">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter prompt for title..."
-                  className="prompt-input"
-                />
-                <button
-                  onClick={() => handleSpecificAICall("title")}
-                  className="add-button"
-                  disabled={!prompt.trim()}
-                >
-                  Generate
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() =>
-                setActiveFunction(activeFunction === "title" ? null : "title")
-              }
-              className="small-button"
-            >
-              Update Title
-            </button>
           </div>
 
           <div className="input-group">
@@ -323,32 +274,6 @@ function App() {
               placeholder="Text content"
               maxLength={300}
             />
-            {activeFunction === "text" && (
-              <div className="prompt-input-container">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter prompt for text..."
-                  className="prompt-input"
-                />
-                <button
-                  onClick={() => handleSpecificAICall("text")}
-                  className="add-button"
-                  disabled={!prompt.trim()}
-                >
-                  Generate
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() =>
-                setActiveFunction(activeFunction === "text" ? null : "text")
-              }
-              className="small-button"
-            >
-              Update Text
-            </button>
           </div>
 
           <div className="input-group">
@@ -361,33 +286,16 @@ function App() {
               onChange={(e) => updateSlide("image", e.target.value)}
               placeholder="Image URL"
             />
-            {activeFunction === "image" && (
-              <div className="prompt-input-container">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter prompt for image..."
-                  className="prompt-input"
-                />
-                <button
-                  onClick={() => handleSpecificAICall("image")}
-                  className="add-button"
-                  disabled={!prompt.trim()}
-                >
-                  Generate
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() =>
-                setActiveFunction(activeFunction === "image" ? null : "image")
-              }
-              className="small-button"
-            >
-              Update Image
-            </button>
           </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <input value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+          <button onClick={handlePromptSubmit}>Submit</button>
         </div>
       </div>
 
