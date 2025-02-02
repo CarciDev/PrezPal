@@ -1,7 +1,7 @@
 import time
 import threading
 import asyncio
-from moonshineBufferedQueue import data_queue
+from pipeline_queues import data_queue
 
 
 def data_generator():
