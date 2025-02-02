@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Presentation, Edit3 } from "lucide-react"; // Change icon to Edit3
+import { Plus, Presentation, Edit3, ChevronDown } from "lucide-react"; // Add ChevronDown icon
 import "./App.css";
 import Slide from "./components/Slide";
 import useCommand from "./hooks/command";
@@ -8,6 +8,7 @@ import { aiRequest } from "./services/aiService";
 import { usePresentation } from "./providers/PresentationProvider";
 import { useSlideCommands } from "./hooks/useSlideCommands";
 import PresenterMode from "./PresenterMode";
+import DropdownEditor from "./DropdownEditor";
 
 function App() {
   const {
@@ -29,6 +30,7 @@ function App() {
 
   const [prompt, setPrompt] = useState("");
   const [isPromptVisible, setIsPromptVisible] = useState(false);
+  const [isPromptDropdownVisible, setIsPromptDropdownVisible] = useState(false);
 
   const deleteCurrentSlide = () => {
     deleteSlide(currentSlide.id);
@@ -121,6 +123,58 @@ function App() {
     deleteSlide(slideId);
   };
 
+  const [selectedInput, setSelectedInput] = useState("title");
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { value } = e.target;
+    switch (selectedInput) {
+      case "title":
+        updateElement(currentSlide.id, 0, { content: value });
+        break;
+      case "text":
+        updateElement(currentSlide.id, 1, { content: value });
+        break;
+      case "image":
+        updateElement(currentSlide.id, 2, { src: value });
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getInputValue = () => {
+    switch (selectedInput) {
+      case "title":
+        return (
+          currentSlide.elements.find((el) => el.type === "title")?.content || ""
+        );
+      case "text":
+        return (
+          currentSlide.elements.find((el) => el.type === "text")?.content || ""
+        );
+      case "image":
+        return (
+          currentSlide.elements.find((el) => el.type === "image")?.src || ""
+        );
+      default:
+        return "";
+    }
+  };
+
+  const handleDropdownToggle = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const handleDropdownSelect = (inputType) => {
+    setSelectedInput(inputType);
+    setIsDropdownVisible(false);
+  };
+
+  const handlePromptDropdownToggle = () => {
+    setIsPromptDropdownVisible(!isPromptDropdownVisible);
+  };
+
   if (isPresenterMode) {
     return (
       <PresenterMode
@@ -134,65 +188,58 @@ function App() {
     <div className="app">
       {/* toolbar menu */}
       <div className="toolbar">
-        <button onClick={addEmptySlide} className="add-button">
-          <Plus />
-          New Slide
-        </button>
-        <div className="inputs">
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "title")
-                  ?.content || ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 0, { content: e.target.value })
-              }
-              placeholder="Title"
-              maxLength={50}
-            />
-          </div>
-
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "text")
-                  ?.content || ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 1, { content: e.target.value })
-              }
-              placeholder="Text content"
-              maxLength={300}
-            />
-          </div>
-
-          <div className="input-group">
-            <input
-              type="text"
-              value={
-                currentSlide.elements.find((el) => el.type === "image")?.src ||
-                ""
-              }
-              onChange={(e) =>
-                updateElement(currentSlide.id, 2, { src: e.target.value })
-              }
-              placeholder="Image URL"
-            />
+        <div className="toolbar-left">
+          <span className="app-name">JSON Derulo</span>
+          <button onClick={addEmptySlide} className="add-button">
+            <Plus />
+            New Slide
+          </button>
+          <div className="relative">
+            <button
+              onClick={handleDropdownToggle}
+              className="edit-button flex items-center gap-2 px-3 py-2 bg-gray-200 rounded-md border border-gray-300 hover:bg-gray-300"
+            >
+              <Edit3 />
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  isDropdownVisible ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {isDropdownVisible && (
+              <div className="absolute left-0 top-full mt-1 w-80 bg-white rounded-md shadow-lg border border-gray-200 p-4 space-y-4 z-10">
+                <DropdownEditor
+                  currentSlide={currentSlide}
+                  updateElement={updateElement}
+                />
+                <hr className="my-4 border-gray-300" />
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
+                  placeholder="Enter your prompt"
+                />
+                <div className="flex justify-end">
+                  <button
+                    onClick={handlePromptSubmit}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <button
-          onClick={() => setIsPresenterMode(true)}
-          className="present-button"
-        >
-          <Presentation />
-          Present
-        </button>
-        <button onClick={handlePromptToggle} className="prompt-toggle-button">
-          <Edit3 />
-        </button>
+        <div className="toolbar-right">
+          <button
+            onClick={() => setIsPresenterMode(true)}
+            className="present-button"
+          >
+            <Presentation />
+            Present
+          </button>
+        </div>
       </div>
 
       {/* content */}
@@ -247,22 +294,7 @@ function App() {
       </div>
 
       {/* prompt container */}
-      {isPromptVisible && (
-        <div className="prompt-container">
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="prompt-input"
-            placeholder="Enter your prompt"
-          />
-          <button onClick={handlePromptSubmit} className="prompt-submit-button">
-            Submit
-          </button>
-          <button onClick={handlePromptClose} className="prompt-close-button">
-            x
-          </button>
-        </div>
-      )}
+      {/* Remove the old prompt container */}
     </div>
   );
 }
