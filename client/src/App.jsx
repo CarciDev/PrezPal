@@ -9,6 +9,7 @@ import { usePresentation } from "./providers/PresentationProvider";
 import { useSlideCommands } from "./hooks/useSlideCommands";
 import PresenterMode from "./PresenterMode";
 import DropdownEditor from "./DropdownEditor";
+import AnalyzerChat from "./AnalyzerChart";
 import { soundsLikeAnInstruction } from "./services/soundsLikeAnInstruction";
 
 function App() {
@@ -196,7 +197,7 @@ function App() {
       {/* toolbar menu */}
       <div className="toolbar">
         <div className="toolbar-left">
-          <span className="app-name">JSON Derulo</span>
+          <span className="app-name">PrezPal</span>
           <button onClick={addEmptySlide} className="add-button">
             <Plus />
             New Slide
@@ -230,7 +231,7 @@ function App() {
                   <div className="flex justify-end">
                     <button
                       onClick={handlePromptSubmit}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                      className="px-4 py-2 !bg-blue-400 text-white rounded-md hover:bg-blue-600"
                     >
                       Submit
                     </button>
@@ -310,7 +311,7 @@ function App() {
       </div>
 
       {/* prompt container */}
-      {/* Remove the old prompt container */}
+      <AnalyzerChat />
     </div>
   );
 }
