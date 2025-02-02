@@ -15,11 +15,11 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route("/next-sentence", methods=["GET"])
 def get_state():
     """Endpoint to get the current state"""
-    next_sentence = moonshine_queue.get()
-    analyzer_queue.put(next_sentence)
+    next_element = moonshine_queue.get()
+    analyzer_queue.put(next_element)
     return jsonify(
         {
-            "sentence": next_sentence,
+            "sentence": next_element["text"],
         }
     )
 

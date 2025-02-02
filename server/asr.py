@@ -69,7 +69,7 @@ def end_recording(speech, transcribe, caption_cache, do_print=True):
         print_captions(text, caption_cache)
     caption_cache.append(text)
     speech *= 0.0
-    moonshine_queue.put(text)
+    moonshine_queue.put({"text": text, "duration": (len(speech) / SAMPLING_RATE)})
 
 
 def print_captions(text, caption_cache):
