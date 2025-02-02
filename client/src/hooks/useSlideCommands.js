@@ -2,7 +2,6 @@ import { useCallback, useRef } from "react";
 import { SLIDE_COMMANDS } from "../utils/slideCommands";
 
 export const useSlideCommands = (slideActions) => {
-  // Add a ref to track the last processed command
   const lastCommandRef = useRef(null);
 
   const processCommand = useCallback(
@@ -11,22 +10,35 @@ export const useSlideCommands = (slideActions) => {
 
       const normalizedInput = command.sentence.toLowerCase().trim();
 
-      // If this is the same command as last time, ignore it
       if (lastCommandRef.current === normalizedInput) {
         return false;
       }
 
-      for (const [_, commandConfig] of Object.entries(SLIDE_COMMANDS)) {
-        if (normalizedInput.includes(commandConfig.trigger)) {
-          // Store this command to prevent reprocessing
-          lastCommandRef.current = normalizedInput;
+      if (normalizedInput.includes(SLIDE_COMMANDS.GOTO_SLIDE.trigger)) {
+        const result = SLIDE_COMMANDS.GOTO_SLIDE.handler({
+          ...slideActions,
+          lastCommand: normalizedInput,
+        });
 
-          // Add a small delay before clearing the last command
+        if (result.success) {
+          lastCommandRef.current = normalizedInput;
           setTimeout(() => {
             lastCommandRef.current = null;
-          }, 1000); // 1 second delay
+          }, 1000);
+          return true;
+        }
+      }
 
-          return commandConfig.handler(slideActions);
+      for (const [_, commandConfig] of Object.entries(SLIDE_COMMANDS)) {
+        if (
+          commandConfig !== SLIDE_COMMANDS.GOTO_SLIDE &&
+          normalizedInput.includes(commandConfig.trigger)
+        ) {
+          lastCommandRef.current = normalizedInput;
+          setTimeout(() => {
+            lastCommandRef.current = null;
+          }, 1000);
+          return commandConfig.handler(slideActions).success;
         }
       }
 
