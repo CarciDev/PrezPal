@@ -12,7 +12,7 @@ from silero_vad import VADIterator, load_silero_vad
 from sounddevice import InputStream
 
 from moonshine_onnx import MoonshineOnnxModel, load_tokenizer
-from moonshineBufferedQueue import data_queue
+from pipeline_queues import moonshine_queue
 
 SAMPLING_RATE = 16000
 
@@ -69,7 +69,7 @@ def end_recording(speech, transcribe, caption_cache, do_print=True):
         print_captions(text, caption_cache)
     caption_cache.append(text)
     speech *= 0.0
-    data_queue.put(text)
+    moonshine_queue.put(text)
 
 
 def print_captions(text, caption_cache):

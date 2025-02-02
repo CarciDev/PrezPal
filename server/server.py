@@ -4,7 +4,7 @@ import threading
 import time
 import random
 
-from moonshineBufferedQueue import data_queue
+from pipeline_queues import moonshine_queue
 from asr import main as asr_main
 
 
@@ -15,7 +15,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route("/next-sentence", methods=["GET"])
 def get_state():
     """Endpoint to get the current state"""
-    next_sentence = data_queue.get()
+    next_sentence = moonshine_queue.get()
     return jsonify(
         {
             "sentence": next_sentence,
