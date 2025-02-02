@@ -127,15 +127,16 @@ const PresentationProvider = ({ children }) => {
   };
 
   const deleteSlide = (slideId) => {
+    const slideToDelete = presentation.slides.find(
+      (slide) => slide.id === slideId
+    );
     setPresentation((prev) => ({
       ...prev,
       slides: prev.slides.filter((slide) => slide.id !== slideId),
     }));
-    if (currentSlideIndex > 0) {
-      setCurrentSlideIndex((prev) => prev - 1);
-    } else {
-      setCurrentSlideIndex(0);
-    }
+    setCurrentSlideIndex(
+      Math.min(currentSlideIndex, presentation.slides.length - 2)
+    );
   };
 
   // Element management functions

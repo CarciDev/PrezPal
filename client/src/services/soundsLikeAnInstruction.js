@@ -27,6 +27,8 @@ export function soundsLikeAnInstruction(instruction) {
     "transform",
     "convert",
     "write",
+    "undo",
+    "nevermind",
   ];
   if (instructionKeywords.some((keyword) => wordSet.has(keyword))) {
     console.log("Command passes basic filter.");
