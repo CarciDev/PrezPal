@@ -9,6 +9,7 @@ import { usePresentation } from "./providers/PresentationProvider";
 import { useSlideCommands } from "./hooks/useSlideCommands";
 import PresenterMode from "./PresenterMode";
 import DropdownEditor from "./DropdownEditor";
+import AnalyzerChat from "./AnalyzerChart";
 
 function App() {
   const {
@@ -303,7 +304,7 @@ function App() {
       </div>
 
       {/* prompt container */}
-      {/* Remove the old prompt container */}
+      <AnalyzerChat />
     </div>
   );
 }
