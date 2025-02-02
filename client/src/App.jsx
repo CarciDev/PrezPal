@@ -1,11 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
 import { useLocalStorage } from "usehooks-ts";
 import OpenAI from "openai";
+import useCommand from "./hooks/command";
 
 function App() {
+  const { command, isPolling, startPolling } = useCommand();
+
+  useEffect(() => {
+    if (!isPolling) {
+      startPolling();
+    }
+  }, [isPolling, startPolling]);
+
+  useEffect(() => {
+    console.log(command);
+  }, [command]);
+
   const [slides, setSlides] = useLocalStorage("slides", [
     {
       layout: "titleTextImage",
