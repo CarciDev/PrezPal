@@ -85,9 +85,7 @@ const PresentationProvider = ({ children }) => {
       ...prev,
       slides: [...prev.slides, { ...newSlide, id: createUniqueId() }],
     }));
-    if (currentSlideIndex < 0) {
-      setCurrentSlideIndex(presentation.slides.length - 1);
-    }
+    setCurrentSlideIndex(presentation.slides.length);
   };
 
   const addEmptySlide = () => {
@@ -135,6 +133,8 @@ const PresentationProvider = ({ children }) => {
     }));
     if (currentSlideIndex > 0) {
       setCurrentSlideIndex((prev) => prev - 1);
+    } else {
+      setCurrentSlideIndex(0);
     }
   };
 
