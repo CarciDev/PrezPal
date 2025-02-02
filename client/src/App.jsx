@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
+import { useLocalStorage } from "usehooks-ts";
 import OpenAI from "openai";
 
 function App() {
-  const [slides, setSlides] = useState([
+  const [slides, setSlides] = useLocalStorage("slides", [
     {
       layout: "titleTextImage",
       id: 1,
@@ -254,6 +255,7 @@ function App() {
               }
               onChange={(e) => updateSlide("title", e.target.value)}
               placeholder="Title"
+              maxLength={50}
             />
             {activeFunction === "title" && (
               <div className="prompt-input-container">
@@ -292,6 +294,7 @@ function App() {
               }
               onChange={(e) => updateSlide("text", e.target.value)}
               placeholder="Text content"
+              maxLength={300}
             />
             {activeFunction === "text" && (
               <div className="prompt-input-container">

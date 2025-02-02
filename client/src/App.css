@@ -124,7 +124,11 @@ html {
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .slide img {
@@ -246,11 +250,23 @@ html {
   height: 100%;
 }
 
+.title-text-image-container .title-section h1 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .title-text-image-container .title-section {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 2rem;
+  align-items: center;
+  padding: 1rem;
+  height: 100px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .title-text-image-container .content-section {
@@ -258,22 +274,33 @@ html {
   flex-direction: row;
   flex: 1;
   gap: 8px;
+  height: calc(100% - 80px); /* Subtract title height */
 }
 
 .title-text-image-container .text-section {
-  flex: 1;
+  width: 60%;
+  flex: none; /* Override flex: 1 */
+  display: flex;
+  justify-content: flex-start; /* Align text to top-left */
+  align-items: flex-start;
+  padding: 2rem;
+  overflow-y: auto; /* Allow vertical scrolling if needed */
+  overflow-x: hidden;
+}
+
+.title-text-image-container .image-section {
+  width: 40%;
+  flex: none; /* Override flex: 1 */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
 }
 
-.title-text-image-container .image-section {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
+.title-text-image-container .image-section img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 :root {
