@@ -6,22 +6,10 @@ import { useLocalStorage } from "usehooks-ts";
 import OpenAI from "openai";
 import useCommand from "./hooks/command";
 import { queryPhotos } from "./services/unsplashService";
+import { useSlideCommands } from "./hooks/useSlideCommands";
 
 function App() {
   const { command, isPolling, startPolling } = useCommand();
-
-  useEffect(() => {
-    if (!isPolling) {
-      startPolling();
-    }
-  }, [isPolling]);
-
-  useEffect(() => {
-    console.log(command);
-    if (command) {
-      //   aiRequest(command.sentence); // commented-out as there are no safeguards in place to prevent excessive calls
-    }
-  }, [command]);
 
   const [slides, setSlides] = useLocalStorage("slides", [
     {
@@ -95,6 +83,18 @@ function App() {
     setCurrentSlide(slides.length);
   };
 
+  const deleteSlide = () => {
+    if (slides.length <= 1) {
+      return;
+    }
+
+    const updatedSlides = slides.filter((_, index) => index !== currentSlide);
+    setSlides(updatedSlides);
+    if (currentSlide === slides.length - 1) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
   const setTitle = (title, color, size) => {
     updateSlide("title", title, { color, size });
   };
@@ -106,6 +106,30 @@ function App() {
   const setImage = (imageUrl, size) => {
     updateSlide("image", imageUrl, { size });
   };
+
+  const slideActions = {
+    addSlide,
+    setCurrentSlide,
+    totalSlides: slides.length,
+    deleteSlide,
+  };
+  const { processCommand } = useSlideCommands(slideActions);
+
+  useEffect(() => {
+    if (!isPolling) {
+      startPolling();
+    }
+  }, [isPolling]);
+
+  useEffect(() => {
+    console.log(command);
+    if (command?.sentence) {
+      const wasVoiceCommand = processCommand(command);
+      if (!wasVoiceCommand) {
+        aiRequest(command.sentence);
+      }
+    }
+  }, [command]);
 
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
