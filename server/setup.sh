@@ -19,4 +19,18 @@ uv pip install Flask flask_cors
 
 # demo
 # python3 moonshine/demo/moonshine-onnx/live_captions.py
- 
+
+# windows commands:
+# uv venv env --python=python3.11
+# env\Scripts\Activate
+# $env:KERAS_BACKEND="torch"
+# uv pip install https://github.com/usefulsensors/moonshine.git
+# git clone git@github.com:usefulsensors/moonshine.git
+# uv pip install numba
+# uv pip install -r moonshine/demo/moonshine-onnx/requirements.txt
+# uv pip install Flask flask_socketio eventlet flask_cors
+
+# windows demo:
+# python moonshine/demo/moonshine-onnx/live_captions.py
+
+# run the server.py
