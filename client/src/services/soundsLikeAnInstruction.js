@@ -7,6 +7,14 @@ export function soundsLikeAnInstruction(instruction) {
   console.log(wordSet);
 
   const instructionKeywords = [
+    "go",
+    "move",
+    "navigate",
+    "jump",
+    "skip",
+    "advance",
+    "see",
+    "show",
     "change",
     "make",
     "create",

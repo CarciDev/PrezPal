@@ -151,6 +151,25 @@ const GPT_TOOLS = [
       strict: true,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "changeActiveSlide",
+      description: "Switch to a specific slide in the presentation",
+      parameters: {
+        type: "object",
+        properties: {
+          slideIndex: {
+            type: "number",
+            description: "The index of the slide to switch to",
+          },
+        },
+        required: ["slideIndex"],
+        additionalProperties: false,
+      },
+      strict: true,
+    },
+  },
 ];
 
 const aiRequest = async (instructions, context, handleToolCall) => {

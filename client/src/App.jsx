@@ -39,6 +39,10 @@ function App() {
       instructions,
       {
         totalSlides: presentation.slides.length,
+        slideSummaries: presentation.slides.map((slide) => ({
+          index: presentation.slides.indexOf(slide),
+          title: slide.elements.find((el) => el.type === "title")?.content,
+        })),
         currentSlide: currentSlide ?? "<None is selected>",
       },
       handleToolCall
@@ -148,6 +152,8 @@ function App() {
           ],
         });
         break;
+      case "changeActiveSlide":
+        setCurrentSlideIndex(functionArguments.slideIndex);
       default:
         console.warn("Unknown function call:", toolCall.function.name);
     }
