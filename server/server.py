@@ -15,20 +15,6 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 current_state = {"value": 0, "last_updated": time.strftime("%Y-%m-%d %H:%M:%S")}
 
 
-def random_update_to_state():
-    """Function to randomly update the state in a separate thread"""
-    global current_state
-    while True:
-        # Random update between -10 and 10
-        new_value = current_state["value"] + random.randint(-10, 10)
-        current_state = {
-            "value": new_value,
-            "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-        # Sleep for a random interval between 1-5 seconds
-        time.sleep(1)
-
-
 @app.route("/next-sentence", methods=["GET"])
 def get_state():
     """Endpoint to get the current state"""
