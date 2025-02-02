@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Presentation } from "lucide-react";
 import "./App.css";
 import Slide from "./components/Slide";
 import { useLocalStorage } from "usehooks-ts";
 import useCommand from "./hooks/command";
 import { queryPhotos } from "./services/unsplashService";
 import { aiRequest } from "./services/aiService";
+import PresenterMode from "./PresenterMode";
 
 function App() {
   const { command, isPolling, startPolling } = useCommand();
@@ -22,6 +23,8 @@ function App() {
       //   aiRequest(command.sentence, slides[currentSlide], handleToolCall); // commented-out as there are no safeguards in place to prevent excessive calls
     }
   }, [command]);
+
+  const [isPresenterMode, setIsPresenterMode] = useState(false);
 
   const [slides, setSlides] = useLocalStorage("slides", [
     {
@@ -139,6 +142,19 @@ function App() {
     // Todo
   };
 
+  const getTitleClassName = (title) => {
+    return title.length > 50 ? "small" : "";
+  };
+
+  if (isPresenterMode) {
+    return (
+      <PresenterMode
+        slides={slides}
+        onClose={() => setIsPresenterMode(false)}
+      />
+    );
+  }
+
   return (
     <div className="app">
       {/* toolbar menu */}
@@ -186,6 +202,13 @@ function App() {
             />
           </div>
         </div>
+        <button
+          onClick={() => setIsPresenterMode(true)}
+          className="present-button"
+        >
+          <Presentation />
+          Present
+        </button>
         <div
           style={{
             display: "flex",
@@ -209,11 +232,20 @@ function App() {
                 currentSlide === index ? "active" : ""
               }`}
             >
-              <h3>
-                {slide.elements.find((el) => el.type === "title")?.content ||
-                  (slide.elements.length === 0 ? "Untitled Slide" : "")}
-              </h3>
-              <p>{slide.elements.find((el) => el.type === "text")?.content}</p>
+              <div className="slide-number-container">
+                <span className="slide-number">{index + 1}</span>
+                <div className="slide-content">
+                  <h3
+                    className={`slide-title ${getTitleClassName(
+                      slide.elements.find((el) => el.type === "title")
+                        ?.content || ""
+                    )}`}
+                  >
+                    {slide.elements.find((el) => el.type === "title")
+                      ?.content || "Untitled Slide"}
+                  </h3>
+                </div>
+              </div>
             </div>
           ))}
         </div>
