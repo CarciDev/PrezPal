@@ -2,7 +2,7 @@ export const SLIDE_COMMANDS = {
   NEW_SLIDE: {
     trigger: "create slide",
     handler: (slideActions) => {
-      slideActions.addSlide();
+      slideActions.addEmptySlide();
       return {
         success: true,
         message: "Created new slide",
@@ -12,7 +12,7 @@ export const SLIDE_COMMANDS = {
   NEXT_SLIDE: {
     trigger: "next slide",
     handler: (slideActions) => {
-      slideActions.setCurrentSlide((curr) =>
+      slideActions.setCurrentSlideIndex((curr) =>
         Math.min(curr + 1, slideActions.totalSlides - 1)
       );
       return {
@@ -24,7 +24,7 @@ export const SLIDE_COMMANDS = {
   PREVIOUS_SLIDE: {
     trigger: "previous slide",
     handler: (slideActions) => {
-      slideActions.setCurrentSlide((curr) => Math.max(curr - 1, 0));
+      slideActions.setCurrentSlideIndex((curr) => Math.max(curr - 1, 0));
       return {
         success: true,
         message: "Moved to previous slide",
@@ -34,7 +34,7 @@ export const SLIDE_COMMANDS = {
   DELETE_SLIDE: {
     trigger: "delete slide",
     handler: (slideActions) => {
-      slideActions.deleteSlide();
+      slideActions.deleteCurrentSlide();
       return {
         success: true,
         message: "Deleted current slide",

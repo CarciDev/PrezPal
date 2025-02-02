@@ -19,111 +19,22 @@ function App() {
     nextSlide,
     previousSlide,
     addSlide,
+    addEmptySlide,
   } = usePresentation();
 
   const { command, isPolling, startPolling } = useCommand();
 
-  const [slides, setSlides] = useLocalStorage("slides", [
-    {
-      layout: "titleTextImage",
-      id: 1,
-      elements: [
-        {
-          type: "title",
-          content: "Welcome to the Presentation",
-          size: "large",
-          color: "#000000",
-        },
-        {
-          type: "text",
-          content: "",
-          size: "medium",
-          color: "#000000",
-        },
-        {
-          type: "image",
-          src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-          size: "medium",
-        },
-      ],
-    },
-  ]);
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   const [prompt, setPrompt] = useState("");
 
-  const updateSlide = async (field, value, additionalProps = {}) => {
-    const updatedSlides = [...slides];
-    const elementIndex = updatedSlides[currentSlide].elements.findIndex(
-      (el) => el.type === field
-    );
-    if (elementIndex !== -1) {
-      if (field === "image") {
-        const photos = await queryPhotos(value);
-        if (photos.length === 0) {
-          return;
-        }
-        updatedSlides[currentSlide].elements[elementIndex].src = photos[0].src;
-      } else {
-        updatedSlides[currentSlide].elements[elementIndex].content = value;
-      }
-      updatedSlides[currentSlide].elements[elementIndex] = {
-        ...updatedSlides[currentSlide].elements[elementIndex],
-        ...additionalProps,
-      };
-    } else {
-      updatedSlides[currentSlide].elements.push({
-        type: field,
-        content: field === "image" ? "" : value,
-        src: field === "image" ? value : "",
-        ...additionalProps,
-      });
-    }
-    setSlides(updatedSlides);
-  };
-
-  const addSlide = () => {
-    console.log(slides);
-    setSlides([
-      ...slides,
-      {
-        id: slides.length + 1,
-        elements: [],
-      },
-    ]);
-    setCurrentSlide(slides.length);
-  };
-
-  const deleteSlide = () => {
-    if (slides.length <= 1) {
-      return;
-    }
-
-    const updatedSlides = slides.filter((_, index) => index !== currentSlide);
-    setSlides(updatedSlides);
-    if (currentSlide === slides.length - 1) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
-  const setTitle = (title, color, size) => {
-    updateSlide("title", title, { color, size });
-  };
-
-  const setText = (text, color, size) => {
-    updateSlide("text", text, { color, size });
-  };
-
-  const setImage = (imageUrl, size) => {
-    updateSlide("image", imageUrl, { size });
+  const deleteCurrentSlide = () => {
+    deleteSlide(currentSlide.id);
   };
 
   const slideActions = {
-    addSlide,
-    setCurrentSlide,
-    totalSlides: slides.length,
-    deleteSlide,
+    addEmptySlide,
+    setCurrentSlideIndex,
+    totalSlides: presentation.slides.length,
+    deleteCurrentSlide,
   };
   const { processCommand } = useSlideCommands(slideActions);
 
@@ -138,7 +49,7 @@ function App() {
     if (command?.sentence) {
       const wasVoiceCommand = processCommand(command);
       if (!wasVoiceCommand) {
-        aiRequest(command.sentence);
+        // aiRequest(command.sentence);
       }
     }
   }, [command]);
@@ -186,36 +97,7 @@ function App() {
     <div className="app">
       {/* toolbar menu */}
       <div className="toolbar">
-        <button
-          onClick={() =>
-            addSlide({
-              layout: "titleTextImage",
-              elements: [
-                {
-                  id: 2,
-                  type: "title",
-                  content: "New Slide",
-                  size: "large",
-                  color: "#000000",
-                },
-                {
-                  id: 3,
-                  type: "text",
-                  content: "",
-                  size: "medium",
-                  color: "#000000",
-                },
-                {
-                  id: 4,
-                  type: "image",
-                  src: "",
-                  size: "medium",
-                },
-              ],
-            })
-          }
-          className="add-button"
-        >
+        <button onClick={addEmptySlide} className="add-button">
           <Plus />
           New Slide
         </button>

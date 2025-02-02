@@ -3,6 +3,10 @@ import { useLocalStorage } from "usehooks-ts";
 
 const PresentationContext = createContext();
 
+const createUniqueId = () => {
+  return Math.random().toString(16).slice(2);
+};
+
 export const usePresentation = () => {
   const context = useContext(PresentationContext);
   if (!context) {
@@ -62,8 +66,36 @@ const PresentationProvider = ({ children }) => {
   const addSlide = (newSlide) => {
     setPresentation((prev) => ({
       ...prev,
-      slides: [...prev.slides, { ...newSlide, id: prev.slides.length + 1 }],
+      slides: [...prev.slides, { ...newSlide, id: createUniqueId() }],
     }));
+  };
+
+  const addEmptySlide = () => {
+    addSlide({
+      elements: [
+        {
+          id: 2,
+          type: "title",
+          content: "",
+          size: "large",
+          color: "#000000",
+        },
+        {
+          id: 3,
+          type: "text",
+          content: "",
+          size: "medium",
+          color: "#000000",
+        },
+        {
+          id: 4,
+          type: "image",
+          src: "",
+          size: "medium",
+        },
+      ],
+    });
+    setCurrentSlideIndex(presentation.slides.length - 1);
   };
 
   const updateSlide = (slideId, updatedSlide) => {
@@ -111,6 +143,7 @@ const PresentationProvider = ({ children }) => {
     nextSlide,
     previousSlide,
     addSlide,
+    addEmptySlide,
     updateSlide,
     deleteSlide,
     updateElement,
