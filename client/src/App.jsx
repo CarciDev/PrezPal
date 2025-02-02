@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     console.log(command);
     if (command) {
-      //   aiRequest(command.sentence, slides[currentSlide]); // commented-out as there are no safeguards in place to prevent excessive calls
+      //   aiRequest(command.sentence, slides[currentSlide], handleToolCall); // commented-out as there are no safeguards in place to prevent excessive calls
     }
   }, [command]);
 
@@ -110,7 +110,7 @@ function App() {
   const handlePromptSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await aiRequest(prompt, slides[currentSlide]);
+    await aiRequest(prompt, slides[currentSlide], handleToolCall);
     setPrompt("");
   };
 

@@ -69,7 +69,7 @@ const GPT_TOOLS = [
   },
 ];
 
-const aiRequest = async (instructions, context) => {
+const aiRequest = async (instructions, context, handleToolCall) => {
   try {
     const client = new OpenAI({
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
