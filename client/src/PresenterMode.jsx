@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Slide from "./components/Slide";
 
-const PresenterMode = ({ slides, onClose }) => {
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+const PresenterMode = ({
+  slides,
+  currentSlideIndex = 0,
+  setCurrentSlideIndex,
+  onClose,
+}) => {
   const [isExiting, setIsExiting] = useState(false);
+
+  if (!slides || !Array.isArray(slides) || slides.length === 0) {
+    return (
+      <div className="presenter-mode-container">
+        <div className="text-center text-white">No slides available</div>
+      </div>
+    );
+  }
 
   const isInFullscreen = () => {
     return !!(

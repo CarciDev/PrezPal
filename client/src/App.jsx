@@ -185,6 +185,8 @@ function App() {
     return (
       <PresenterMode
         slides={presentation.slides}
+        currentSlideIndex={0}
+        setCurrentSlideIndex={setCurrentSlideIndex}
         onClose={() => setIsPresenterMode(false)}
       />
     );
